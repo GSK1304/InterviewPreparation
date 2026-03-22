@@ -1,0 +1,1 @@
+-- No pre-seeded data needed; games are created via POST /v1/snake-ladder/games

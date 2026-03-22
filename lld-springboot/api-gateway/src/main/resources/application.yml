@@ -1,0 +1,127 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      # Automatically create routes for all Eureka-registered services
+      # lb://SERVICE-NAME routes via Eureka load balancer
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true   # /parking-lot/** instead of /PARKING-LOT/**
+
+      # Explicit routes with clean path prefixes
+      routes:
+
+        - id: parking-lot
+          uri: lb://PARKING-LOT
+          predicates:
+            - Path=/api/parking/**
+          filters:
+            - RewritePath=/api/parking/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: splitwise
+          uri: lb://SPLITWISE
+          predicates:
+            - Path=/api/splitwise/**
+          filters:
+            - RewritePath=/api/splitwise/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: bookmyshow
+          uri: lb://BOOKMYSHOW
+          predicates:
+            - Path=/api/bookmyshow/**
+          filters:
+            - RewritePath=/api/bookmyshow/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: cab-booking
+          uri: lb://CAB-BOOKING
+          predicates:
+            - Path=/api/cab/**
+          filters:
+            - RewritePath=/api/cab/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: library
+          uri: lb://LIBRARY-MANAGEMENT
+          predicates:
+            - Path=/api/library/**
+          filters:
+            - RewritePath=/api/library/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: atm
+          uri: lb://ATM-MACHINE
+          predicates:
+            - Path=/api/atm/**
+          filters:
+            - RewritePath=/api/atm/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: hotel
+          uri: lb://HOTEL-RESERVATION
+          predicates:
+            - Path=/api/hotel/**
+          filters:
+            - RewritePath=/api/hotel/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: elevator
+          uri: lb://ELEVATOR-SYSTEM
+          predicates:
+            - Path=/api/elevator/**
+          filters:
+            - RewritePath=/api/elevator/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: snake-ladder
+          uri: lb://SNAKE-LADDER
+          predicates:
+            - Path=/api/snake-ladder/**
+          filters:
+            - RewritePath=/api/snake-ladder/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: chess
+          uri: lb://CHESS-GAME
+          predicates:
+            - Path=/api/chess/**
+          filters:
+            - RewritePath=/api/chess/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+        - id: spaceship
+          uri: lb://SPACESHIP-GAME
+          predicates:
+            - Path=/api/spaceship/**
+          filters:
+            - RewritePath=/api/spaceship/(?<segment>.*), /${segment}
+            - AddRequestHeader=X-Gateway-Source, lld-gateway
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway,metrics
+  endpoint:
+    gateway:
+      enabled: true
+
+logging:
+  level:
+    lld.gateway: DEBUG
+    org.springframework.cloud.gateway: INFO
