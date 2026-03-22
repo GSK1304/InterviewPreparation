@@ -13,19 +13,109 @@
 | JDK | 21+ | Must be registered in STS |
 | Maven | Bundled in STS | No separate install needed |
 
-### Register JDK 21 in STS
+### Repoint JDK to 21 in STS
 
-If STS defaults to an older JDK:
+STS ships with its own embedded JRE and often defaults to an older version. You need to point it to your installed JDK 21 in **three places**.
+
+---
+
+#### 1. Find your JDK 21 home
+
+**Windows** — common locations:
+```
+C:\Program Files\Java\jdk-21
+C:\Program Files\Eclipse Adoptium\jdk-21.x.x.x-hotspot
+C:\Users\<you>\.jdks\openjdk-21
+```
+
+**Mac**:
+```bash
+/usr/libexec/java_home -v 21
+# prints something like: /Library/Java/JavaVirtualMachines/jdk-21.jdk/Contents/Home
+```
+
+**Linux**:
+```bash
+update-java-alternatives -l
+# or: ls /usr/lib/jvm/
+```
+
+---
+
+#### 2. Register JDK 21 as an Installed JRE
 
 ```
 Window → Preferences → Java → Installed JREs
-  → Add → Standard VM → Directory → point to JDK 21 home
-  → Check the new entry as default
 ```
 
-Verify:
+You will see STS's bundled JRE listed (e.g. `jre-17` or similar).
+
 ```
-Window → Preferences → Java → Compiler → Compiler compliance level → 21
+→ Click Add
+→ Select: Standard VM → Next
+→ JRE home: Browse → navigate to your JDK 21 folder
+  (select the root folder, e.g. C:\Program Files\Java\jdk-21)
+→ STS auto-fills the JRE name as "jdk-21"
+→ Finish
+→ Check the checkbox next to jdk-21 to make it the default
+→ Apply and Close
+```
+
+> **Important:** Select the JDK root folder (contains `bin/`, `lib/`), not the `bin/` subfolder.
+
+---
+
+#### 3. Set Compiler Compliance Level to 21
+
+```
+Window → Preferences → Java → Compiler
+  → Compiler compliance level → 21
+  → Apply and Close
+```
+
+---
+
+#### 4. Repoint the Execution Environment
+
+This ensures Maven uses JDK 21, not a bundled JRE.
+
+```
+Window → Preferences → Java → Installed JREs → Execution Environments
+  → Select: JavaSE-21
+  → On the right, check the box next to your jdk-21 entry
+  → Apply and Close
+```
+
+---
+
+#### 5. Update Maven projects to pick up the new JDK
+
+After changing the JRE, force Maven to re-resolve:
+
+```
+Right-click any project in Package Explorer
+  → Maven → Update Project
+  → Check: Select All
+  → Check: Force Update of Snapshots/Releases
+  → OK
+```
+
+---
+
+#### Verify it worked
+
+```
+Window → Preferences → Java → Installed JREs
+  → The checked (default) entry should show jdk-21
+
+Help → About STS → Installation Details → Configuration tab
+  → Search for "java.version" → should show 21.x.x
+```
+
+Or open a Terminal in STS (`Terminal → Open Terminal`):
+```bash
+java -version
+# should print: openjdk version "21.x.x"
 ```
 
 ---
