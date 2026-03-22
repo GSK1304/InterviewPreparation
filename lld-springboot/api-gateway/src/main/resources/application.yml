@@ -24,6 +24,7 @@ spring:
           filters:
             - RewritePath=/api/parking/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/parking
 
         - id: splitwise
           uri: lb://SPLITWISE
@@ -32,6 +33,7 @@ spring:
           filters:
             - RewritePath=/api/splitwise/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/splitwise
 
         - id: bookmyshow
           uri: lb://BOOKMYSHOW
@@ -40,6 +42,7 @@ spring:
           filters:
             - RewritePath=/api/bookmyshow/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/bookmyshow
 
         - id: cab-booking
           uri: lb://CAB-BOOKING
@@ -48,6 +51,7 @@ spring:
           filters:
             - RewritePath=/api/cab/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/cab
 
         - id: library
           uri: lb://LIBRARY-MANAGEMENT
@@ -56,6 +60,7 @@ spring:
           filters:
             - RewritePath=/api/library/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/library
 
         - id: atm
           uri: lb://ATM-MACHINE
@@ -64,6 +69,7 @@ spring:
           filters:
             - RewritePath=/api/atm/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/atm
 
         - id: hotel
           uri: lb://HOTEL-RESERVATION
@@ -72,6 +78,7 @@ spring:
           filters:
             - RewritePath=/api/hotel/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/hotel
 
         - id: elevator
           uri: lb://ELEVATOR-SYSTEM
@@ -80,6 +87,7 @@ spring:
           filters:
             - RewritePath=/api/elevator/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/elevator
 
         - id: snake-ladder
           uri: lb://SNAKE-LADDER
@@ -88,6 +96,7 @@ spring:
           filters:
             - RewritePath=/api/snake-ladder/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/snake-ladder
 
         - id: chess
           uri: lb://CHESS-GAME
@@ -96,6 +105,7 @@ spring:
           filters:
             - RewritePath=/api/chess/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/chess
 
         - id: spaceship
           uri: lb://SPACESHIP-GAME
@@ -104,6 +114,7 @@ spring:
           filters:
             - RewritePath=/api/spaceship/(?<segment>.*), /${segment}
             - AddRequestHeader=X-Gateway-Source, lld-gateway
+            - AddRequestHeader=X-Forwarded-Prefix, /api/spaceship
 
 eureka:
   client:
