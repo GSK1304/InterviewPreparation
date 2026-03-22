@@ -11,13 +11,15 @@ InterviewPreparation/
 │
 ├── 00-cheatsheets/          ← One-page quick reference per topic (print-friendly)
 ├── 01-quick-revision/       ← Read the night before / morning of interview
-└── 02-deep-dive/            ← Detailed study with real-world examples
-    ├── DSA/
-    ├── HLD/
-    ├── LLD/
-    ├── Networking/
-    ├── Java21/
-    └── React19-TypeScript/
+├── 02-deep-dive/            ← Detailed study with real-world examples
+│   ├── DSA/
+│   ├── HLD/
+│   ├── LLD/
+│   ├── Networking/
+│   ├── Java21/
+│   └── React19-TypeScript/
+└── 03-resources/            ← External platforms, tools & reference links
+    └── DSA-Platforms-and-Resources.md
 ```
 
 ---
@@ -84,3 +86,19 @@ InterviewPreparation/
 ---
 
 *Generated with Claude as interview coach. Updated progressively.*
+
+---
+
+## 🌐 External Resources & Platforms
+
+See **[03-resources/DSA-Platforms-and-Resources.md](./03-resources/DSA-Platforms-and-Resources.md)** for the full curated list with descriptions.
+
+| Goal | Platform |
+|------|----------|
+| See ALL DSA topics visually | [roadmap.sh](https://roadmap.sh/datastructures-and-algorithms) |
+| Track progress + LeetCode links | [AlgoMap.io](https://algomap.io/roadmap) |
+| Watch algorithm animations | [VisuAlgo](https://visualgo.net) |
+| Deep algorithm theory + proofs | [CP-Algorithms](https://cp-algorithms.com) |
+| Go competitive (0 to ∞) | [GitHub CP Roadmap](https://github.com/The-CODE-Plus-Plus-Community/Competitive-Programming-and-DSA/blob/main/ROADMAP.md) |
+| Video explanations for LeetCode | [NeetCode](https://neetcode.io) |
+| Reference implementations (Java) | [TheAlgorithms/Java](https://github.com/TheAlgorithms/Java) |
