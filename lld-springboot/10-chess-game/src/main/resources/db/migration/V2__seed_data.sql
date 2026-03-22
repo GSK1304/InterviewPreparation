@@ -1,0 +1,1 @@
+-- No seed needed; games created via POST /v1/chess/games

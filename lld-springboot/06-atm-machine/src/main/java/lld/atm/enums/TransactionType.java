@@ -1,0 +1,2 @@
+package lld.atm.enums;
+public enum TransactionType { WITHDRAW, DEPOSIT, BALANCE_INQUIRY }
