@@ -303,3 +303,22 @@ WebSocket routing (similar to chat server routing):
   SubscriptionRegistry maps topic → sessions
   Heartbeat-based expiry (same as presence system)
 ```
+
+---
+
+## Interview Q&A
+
+**Q: How do you guarantee message ordering in a group chat of 500 members?**
+A: Ordering within a conversation is guaranteed by: (1) TIMEUUID as the message_id in Cassandra — time-ordered UUID ensures natural chronological sorting per partition. (2) Kafka partition key = conversationId — all messages for one conversation go to the same Kafka partition, which is strictly ordered (FIFO). (3) Client-side sequence numbers — each client assigns a sequence number, gaps detected and filled via server re-request. For group chats, ordering is guaranteed within a conversation but not globally across conversations, which is the correct and expected behaviour.
+
+**Q: How do you handle message delivery to a user who is on a slow 2G connection?**
+A: Multiple delivery mechanisms layered: (1) WebSocket for online users — most reliable for fast connections. (2) Long polling fallback — if WebSocket fails to upgrade, fall back to HTTP long polling. (3) Push notification (APNs/FCM) — if user is offline or connection is dropped. (4) SMS fallback — for critical notifications on 2G (WhatsApp does this for verification codes). On reconnect: client sends `lastReceivedMessageId`, server queries Cassandra for all messages after that ID and delivers the delta. The key is not relying solely on WebSocket — layer multiple delivery mechanisms.
+
+**Q: How would you design "read receipts" (the blue double-tick in WhatsApp)?**
+A: Three states per message per recipient: sent (single tick), delivered (double tick), read (blue double tick). Storage: `message_receipts(messageId, recipientId, status, updatedAt)`. On delivery: recipient's device sends an ack to the Chat Server, which publishes a `message.delivered` event to Kafka → sender's Chat Server receives → pushes "delivered" update to sender's WebSocket. On read: user opens conversation → client sends `message.read` for all visible messages → same Kafka flow → blue ticks for sender. For groups: aggregate — show "delivered to all" only when all members have delivered; "read by all" when all have read.
+
+**Q: What is the difference between WhatsApp's architecture and Slack's?**
+A: WhatsApp: optimised for mobile, peer-to-peer encrypted (E2E encryption means server never sees message content), focus on personal messaging, stores messages on device (not cloud by default), simple message threading. Slack: optimised for desktop/work, messages stored in cloud (searchable), rich threading and channels, deep integrations with productivity tools, no E2E encryption (required for compliance search). Architecturally: WhatsApp stores message routing metadata only (server can't read content), Slack stores full message history in a searchable DB. Both use WebSocket for real-time delivery.
+
+**Q: How would you design message search across billions of messages?**
+A: Message search at WhatsApp/Slack scale requires a separate search pipeline. On message send → Kafka → Search Indexer → Elasticsearch. Index: message content (full-text), sender, conversation_id, timestamp. Query: `GET /search?q=invoice&conversation=work-channel&from=2024-01-01` → Elasticsearch multi-match query → returns message IDs → fetch message content from Cassandra by ID. Access control: filter by `conversation_id IN (user's permitted conversations)` at query time. For E2E encrypted systems (WhatsApp): server-side search is impossible — search runs entirely on-device against locally decrypted messages.

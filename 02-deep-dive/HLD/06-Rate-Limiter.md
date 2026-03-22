@@ -306,3 +306,22 @@ public RedisRateLimiter redisRateLimiter() {
 | Failure | Fail-open | Availability > strict enforcement |
 | Granularity | Per-user + per-endpoint | Balance fairness and protection |
 | Accuracy | Approximate (0.003% error) | Performance > perfect accuracy |
+
+---
+
+## Interview Q&A
+
+**Q: How do you rate limit a distributed system where a user's requests can hit any of 100 servers?**
+A: You need a shared counter store. The standard approach: Redis with atomic INCR and EXPIRE. Every server, regardless of which one the request hits, increments the same Redis key (`ratelimit:{userId}:{window}`). Redis's single-threaded command execution guarantees atomicity — no race conditions between servers. The Lua script approach (INCR + check in one atomic operation) eliminates the check-then-increment race. For very high throughput (> 100K requests/sec across all users), use Redis Cluster to shard the rate limit keys horizontally. Local rate limiting per server is faster but allows 100× overuse (one user saturates all 100 servers at the per-server limit).
+
+**Q: What's wrong with using a database instead of Redis for rate limiting?**
+A: Databases are too slow. Rate limiting must add < 2ms to request latency. A PostgreSQL query with an UPDATE and SELECT takes 5-20ms per request — that doubles your API latency. Additionally, DB connection pool exhaustion under high load would cause cascading failures. Redis: single-threaded, in-memory, < 0.5ms for INCR operations, no connection overhead with persistent connections, built-in TTL for key expiry. The only time a DB is acceptable: low-volume rate limiting (< 100 requests/sec total) where latency isn't critical, or for coarse daily/monthly quotas where a few ms doesn't matter.
+
+**Q: How would you rate limit by both IP and user ID simultaneously?**
+A: Apply multiple rate limiters in sequence, fail fast if any one is exceeded. Two Redis keys: `ratelimit:ip:{ip}:{window}` and `ratelimit:user:{userId}:{window}`. Check IP limit first (before authentication — prevents even reaching auth code). Then check user limit after authentication. Different thresholds: IP limit = 1000 req/min (prevents single-IP abuse), user limit = 500 req/min (per authenticated user). Unauthenticated requests: only IP-limited. Authenticated requests: both limits apply — a user behind a corporate NAT (many users, one IP) won't be unfairly blocked. Return the most specific 429 with the correct `Retry-After`.
+
+**Q: Should rate limiting be at the API Gateway or inside each microservice?**
+A: Both, for different purposes. API Gateway rate limiting: (1) protects the entire platform from external abuse before any service is reached, (2) enforces per-user/per-API-key global limits, (3) prevents DDoS. Per-service rate limiting: (1) protects a specific service from internal overload (Service A calls Service B 10K times/sec during a bug), (2) enforces per-endpoint or per-resource limits (e.g., max 5 payment attempts per card per hour — business rule, not infrastructure). Gateway handles external; services handle internal and business logic. They complement each other.
+
+**Q: How would you handle rate limiting for a batch API where one request contains 1000 items?**
+A: Count by "cost units" rather than request count. Define: a batch request of N items costs N units (or some function of N). Rate limit: 10,000 units/min, not 100 requests/min. Extract item count from request body before processing, increment Redis counter by count (not by 1). Return `X-RateLimit-Remaining: 7500` (units remaining). This prevents abuse via batching: `10,000 requests × 1 item` and `10 requests × 1000 items` are equivalent cost. OpenAI uses token-based rate limiting (exactly this concept — rate limit is per tokens consumed, not per API call).

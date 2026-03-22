@@ -372,3 +372,22 @@ When to use which size:
 | **KV Cache** | Cached key-value computation — makes long conversations cheaper |
 | **Inference** | Running the model to generate output (vs training = updating weights) |
 | **Perplexity** | Measure of model uncertainty — lower = more confident predictions |
+
+---
+
+## Interview Q&A
+
+**Q: A product manager asks you to add an AI feature. What questions do you ask before starting?**
+A: (1) What problem does it solve — is AI actually the right tool? (A rule-based system might be simpler and more reliable.) (2) What's the acceptable latency — real-time (< 2s) or batch (minutes)? (3) What's the accuracy requirement — 70% good enough or 99.9% required? (4) What's the budget — cost per query × expected volume. (5) What happens when the AI is wrong — is the output reviewed by a human? (6) Does the data contain PII — can we send it to an external API (OpenAI/Anthropic) or must it stay on-premise? (7) What's the fallback when the AI service is down? (8) How will we measure success — what metric proves the feature is working?
+
+**Q: How does temperature affect the suitability of an LLM for different tasks?**
+A: Temperature controls how "random" token sampling is. At temperature 0: always pick the highest probability token — deterministic, consistent, good for factual Q&A, code generation, structured output extraction. At temperature 0.7: balanced creativity and coherence — good for chat, summarisation, writing assistance. At temperature 1.2+: creative and varied output, sometimes incoherent — useful for brainstorming, creative writing, generating diverse options. For system design: set temperature 0 for code generation (correctness matters), 0 for structured JSON extraction (consistency), 0.7 for conversational interfaces, 0.9 for creative content generation.
+
+**Q: What is the difference between a pre-trained model, a fine-tuned model, and a prompted model?**
+A: Pre-trained: base model trained on internet-scale text, predicts next tokens but doesn't follow instructions well. Prompted (in-context learning): use the pre-trained or instruction-tuned model with a carefully crafted prompt — no weight updates, behaviour changed only by input. Fine-tuned: continue training on domain-specific examples — model weights updated, learns patterns not in original training data. In practice: start with a pre-trained instruction-tuned model (like Claude Sonnet), engineer prompts (cheapest, most flexible). If performance plateaus, fine-tune on labelled examples (expensive but more capable). Fine-tuning for style/behaviour; RAG for knowledge.
+
+**Q: An LLM is giving inconsistent answers to the same question. How do you debug it?**
+A: First: set temperature=0 — this eliminates randomness as a variable. If still inconsistent: (1) Check if the prompt is ambiguous — "what do you think" with no context produces variable answers. (2) Check context window — if conversation history is being truncated differently, the model gets different context each time. (3) Check if the question spans a knowledge boundary (cutoff date, niche topic) — the model may not have reliable knowledge and guesses differently each time. (4) Add explicit instruction: "Answer only based on the provided context. If you don't know, say so." (5) Use a more capable model — smaller models are less consistent on complex topics. (6) Implement self-consistency: generate 5 responses at temperature 0.7, take majority vote.
+
+**Q: How would you explain LLM hallucinations to a non-technical stakeholder and what would you do about it?**
+A: Analogy: an LLM is like a very well-read person who has read the internet but can't look anything up right now. When asked a specific fact, they sometimes make a confident-sounding guess rather than admitting uncertainty. They're not lying — they genuinely believe they're right. For your stakeholder: "The AI will sometimes state incorrect information with confidence. It doesn't know what it doesn't know." Solutions I'd present: (1) RAG — give the AI the relevant facts before asking the question, tell it to only use provided facts. Reduces hallucinations for knowledge-heavy tasks by 60-70%. (2) Citation requirement — ask it to cite its source. If it can't cite, flag the answer for review. (3) Human review gate for high-stakes outputs. (4) Confidence signals — prompt the AI to say "I'm not sure, but..." when uncertain.
