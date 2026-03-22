@@ -1,141 +1,180 @@
-# ⚡ DSA Quick Revision — Read the Night Before
+# ⚡ DSA Quick Revision — Complete (Read Night Before Interview)
 
-> Target: 45 minutes. One read-through, no coding needed.
+> Target: 60–90 minutes. One read-through — no coding needed.
 
 ---
 
 ## 1. Arrays & Strings
-
-- **Array**: contiguous memory, O(1) access by index
-- **Key ops**: traversal O(n), search O(n), insert/delete O(n) due to shifting
-- **String tricks**: use `char[]` for mutation in Java, `StringBuilder` for concatenation
-- **Must know**: prefix sum, frequency map with HashMap
-
-**Top patterns:**
-- Find duplicates → HashSet
-- Anagram check → frequency array of size 26
-- Reverse / rotate → two pointers
+- Contiguous memory, O(1) access, O(n) insert/delete
+- **Prefix sum**: precompute for O(1) range queries
+- **Kadane's**: max subarray — track curSum, reset when negative
+- **Frequency map**: anagram, duplicates — use `int[26]` or HashMap
+- **Two sum**: sort → two pointers OR HashMap for O(n)
 
 ---
 
 ## 2. Sliding Window & Two Pointers
-
-- **Sliding Window**: for contiguous subarray/substring problems
-  - Fixed size → move both ends together
-  - Variable size → expand right, shrink left on violation
-- **Two Pointers**: works on **sorted** arrays or when searching pairs
-
-**Key questions to ask yourself:**
-- Is it asking for subarray/substring? → Sliding Window
-- Is array sorted and asking for pairs? → Two Pointers
+- **Fixed window**: move both ends together, subtract left on exit
+- **Variable window**: expand right freely, shrink left on violation
+- **Two pointers**: works on sorted arrays — opposite ends for pair sum
+- Key: window size = `right - left + 1`
 
 ---
 
 ## 3. Stack & Queue
-
-- **Stack** (LIFO): matching brackets, undo operations, DFS
-- **Queue** (FIFO): BFS, level-order traversal, scheduling
-- **Monotonic Stack**: next greater element, stock span
-  - Decreasing stack → next greater element
-  - Increasing stack → next smaller element
-- **Deque**: sliding window maximum (use as monotonic queue)
+- **Stack (LIFO)**: brackets, undo, DFS — use `ArrayDeque`
+- **Queue (FIFO)**: BFS, level order — use `LinkedList`
+- **Monotonic stack**: next greater → decreasing stack; next smaller → increasing
+- **Deque**: sliding window max — remove from front if outside, back if smaller
 
 ---
 
 ## 4. Binary Search
-
-- Works only on **sorted** or **monotonic** space
-- Always use `mid = lo + (hi - lo) / 2` to avoid overflow
-- Template: `lo <= hi` with `lo = mid+1` / `hi = mid-1`
-- **Variants**: first/last occurrence, search in rotated array, find peak
-
-**Think binary search when:** "find minimum X such that condition is true"
+- Requires sorted or monotonically changing space
+- Always: `mid = lo + (hi - lo) / 2`
+- Exact match: `lo <= hi`, update both `lo = mid+1` and `hi = mid-1`
+- Left boundary: keep `hi = mid-1` when found; Right boundary: keep `lo = mid+1`
+- **Binary search on answer**: find min X where `canAchieve(X)` is true
 
 ---
 
 ## 5. Linked List
-
-- No random access — must traverse
-- **Cycle detection**: fast (2x) & slow (1x) pointer — meet = cycle
-- **Middle node**: fast & slow pointer — slow stops at middle
-- **Reverse**: three pointers (prev, cur, next)
-- **Merge two sorted**: compare heads, recurse or iterate
+- **Reverse**: three pointers (prev, cur, next) — save next before reversing
+- **Cycle**: fast (2x) & slow (1x) — meet = cycle; reset one to head for start
+- **Middle**: fast & slow — slow stops at middle
+- **Dummy node**: prevents edge cases when head changes
+- **Nth from end**: fast moves n+1 ahead first
 
 ---
 
 ## 6. Trees & BST
-
-- **DFS on tree**: preorder (root→L→R), inorder (L→root→R), postorder (L→R→root)
-- **BFS on tree**: level-order using Queue
-- **BST property**: inorder traversal gives sorted order
-- **Height**: `1 + max(height(left), height(right))`
-- **LCA**: if both nodes are less → go left, if both greater → go right
+- **Preorder** (root→L→R): copy/serialize tree
+- **Inorder** (L→root→R): sorted order in BST
+- **Postorder** (L→R→root): delete tree, compute subtree
+- **BFS**: level order — capture `q.size()` before inner loop
+- **BST validate**: use `min/max` bounds, not just parent comparison
+- **LCA**: if both nodes < root → left; both > root → right; else root
 
 ---
 
 ## 7. Graphs
-
-- **Representations**: adjacency list (sparse, preferred) vs matrix (dense)
-- **BFS**: shortest path in unweighted graph, level order
-- **DFS**: connected components, cycle detection, topological sort
-- **Visited array**: always maintain to avoid infinite loops
-- **Topological Sort**: Kahn's algorithm (BFS with indegree) or DFS with stack
-
----
-
-## 8. Recursion & Backtracking
-
-- **Recursion**: base case + recursive case
-- **Backtracking** = recursion + undo choice after exploring
-- Template:
-  ```
-  backtrack(state):
-    if done: add to result, return
-    for each choice:
-      make choice
-      backtrack(next state)
-      undo choice
-  ```
-- Used for: subsets, permutations, combinations, N-Queens, Sudoku
+- **BFS**: shortest path unweighted, level order — mark visited before enqueue
+- **DFS**: connected components, cycle, topological sort
+- **Topo sort (Kahn's)**: indegree array + queue; empty result = cycle exists
+- **Union-Find**: path compression + union by rank = O(α(n)) ≈ O(1)
+- **Grid DFS**: mark cell visited by setting to '#' or 0; restore on backtrack
 
 ---
 
-## 9. Dynamic Programming
-
-- **Identify DP**: optimal answer + overlapping subproblems
-- **Steps**: define state → write recurrence → base case → iterate
-- **Top-down** (memoization): recursion + cache
-- **Bottom-up** (tabulation): fill dp array iteratively
-
-**Classic problems:**
-| Problem | State | Recurrence |
-|---------|-------|------------|
-| Fibonacci | dp[i] | dp[i-1] + dp[i-2] |
-| 0/1 Knapsack | dp[i][w] | max(dp[i-1][w], dp[i-1][w-wt]+val) |
-| LCS | dp[i][j] | if match: dp[i-1][j-1]+1 else max(dp[i-1][j], dp[i][j-1]) |
-| Coin Change | dp[i] | min(dp[i], dp[i-coin]+1) |
+## 8. Advanced Graphs
+- **Dijkstra**: min-heap, skip stale entries — fails with negative weights
+- **Bellman-Ford**: relax V-1 times; Vth relaxation = negative cycle
+- **Floyd-Warshall**: `dist[i][j] = min(dist[i][j], dist[i][k] + dist[k][j])`
+- **Kruskal MST**: sort edges → Union-Find to avoid cycles
+- **Prim MST**: min-heap on nodes, expand greedily
+- **Kosaraju SCC**: DFS → finish order → reverse graph → DFS again
+- **Tarjan Bridges**: `low[v] > disc[u]` = bridge; `low[v] >= disc[u]` = articulation point
 
 ---
 
-## 10. Sorting & Searching
-
-| Algorithm | Time | Space | Stable? | When to use |
-|-----------|------|-------|---------|-------------|
-| Merge Sort | O(n log n) | O(n) | Yes | Default safe choice |
-| Quick Sort | O(n log n) avg | O(log n) | No | In-place, fast avg |
-| Heap Sort | O(n log n) | O(1) | No | When space matters |
-| Counting Sort | O(n+k) | O(k) | Yes | Small integer range |
-
-- **Java**: `Arrays.sort()` uses dual-pivot quicksort for primitives, merge sort for objects
-- **Custom sort**: `Arrays.sort(arr, (a,b) -> a[0] - b[0])`
+## 9. Heap & Priority Queue
+- **Min-heap default** in Java `PriorityQueue` — use `Collections.reverseOrder()` for max
+- **Heapify**: O(n) — build from array starting at `n/2-1` sifting down
+- **Top-K**: min-heap of size K — evict smallest to keep K largest
+- **K-way merge**: min-heap with `{value, listIdx, elemIdx}` — re-offer next from same list
+- **Two heaps (median)**: lower max-heap, upper min-heap — balance sizes, read from lower.peek()
+- **Task scheduler**: max-heap + cooldown queue
 
 ---
 
-## 🎯 Interview Strategy
+## 10. Recursion & Backtracking
+- **Base case first** — always define it before recursive case
+- **Backtrack template**: make choice → recurse → undo choice
+- **Copy on add**: `result.add(new ArrayList<>(current))` — not reference
+- **Duplicates**: sort first, skip `if (i > start && nums[i] == nums[i-1])`
+- **Prune early**: add constraint checks BEFORE recursing
 
-1. **Clarify** inputs, constraints, edge cases (2 min)
-2. **Brute force** first — state it even if not coding it
-3. **Optimize** — identify bottleneck, apply pattern
-4. **Code** — clean, readable, with variable names
-5. **Test** — trace through 1-2 examples including edge cases
-6. **Complexity** — always state time & space at the end
+---
+
+## 11. Greedy
+- Only works when local optimal = global optimal (prove with exchange argument)
+- **Interval scheduling**: sort by END time, pick earliest ending
+- **Jump game**: track `maxReach`, return false if `i > maxReach`
+- **Meeting rooms**: sort by start, use min-heap of end times for room count
+- **Gas station**: if tank < 0, reset start; if total ≥ 0, solution exists
+
+---
+
+## 12. Dynamic Programming
+- **Identify**: optimal + overlapping subproblems
+- **Steps**: define state → recurrence → base case → iterate → answer location
+- **1D DP**: climbing stairs, house robber, coin change, LIS
+- **2D DP**: knapsack, LCS, edit distance, unique paths
+- **Interval DP**: iterate by length (outer), then start, then split point
+- **Tree DP**: bottom-up via DFS, return pair `{withRob, withoutRob}`
+- **Bitmask DP**: feasible for n ≤ 20 (2^n states)
+
+---
+
+## 13. Trie
+- Each node: `TrieNode[26] children` + `boolean isEnd`
+- Use `HashMap<Character, TrieNode>` for arbitrary characters
+- **Insert/Search/StartsWith**: all O(L) where L = word length
+- **Autocomplete**: DFS from prefix node, collect all words
+- **Word Search II**: build trie from word list, then backtrack on grid
+
+---
+
+## 14. Bit Manipulation
+- `n & (n-1)` clears lowest set bit → count bits, check power of 2
+- `n & (-n)` isolates lowest set bit
+- `a ^ a = 0`, `a ^ 0 = a` → XOR pairs cancel → find single number
+- `1 << i` checks/sets/toggles bit i
+- Enumerate all subsets: `for (mask = 0; mask < (1<<n); mask++)`
+- Java: use `>>>` for unsigned right shift, `long` for bit 31+
+
+---
+
+## 15. Math & Number Theory
+- **GCD**: `gcd(a,b) = gcd(b, a%b)` — O(log min(a,b))
+- **LCM**: `a / gcd(a,b) * b` — divide first to avoid overflow
+- **Sieve**: mark composites from `i*i`, not `2*i`
+- **Is prime**: check up to `√n` only
+- **Fast power**: `base^exp % mod` in O(log exp) via squaring
+- **Mod subtraction**: always `(a - b + MOD) % MOD`
+
+---
+
+## 16. String Algorithms
+- **KMP**: build LPS array, use it to skip re-checks → O(n+m)
+- **Rabin-Karp**: rolling hash → O(n+m) avg, verify on hash match
+- **Manacher's**: transform with `#`, use mirror property → O(n) palindrome
+- **Z-algorithm**: Z[i] = longest prefix match at i → concatenate `pattern$text`
+- **String hashing**: O(1) substring comparison after O(n) build
+
+---
+
+## 17. Segment Tree & Fenwick Tree
+- **Segment Tree**: range queries (sum/min/max) + updates — O(log n) each, O(4n) space
+- **Fenwick (BIT)**: prefix sums + point updates — simpler, O(log n), O(n) space
+- **Fenwick is 1-indexed** always
+- **Lazy propagation**: defer range updates — propagate only when queried
+
+---
+
+## 18. Interview Patterns
+- **Cyclic Sort**: values in [1..n] → place at index `val-1` → scan for mismatch
+- **Boyer-Moore**: majority (>n/2) in O(1) space — always verify candidate
+- **Reservoir Sampling**: K samples from stream of unknown size — uniform probability
+- **Fisher-Yates**: uniform shuffle — iterate backwards, swap with random [0,i]
+- **Floyd's Cycle**: find duplicate = cycle entrance — two-phase (fast+slow, then reset one)
+
+---
+
+## 🎯 Interview Strategy (6 Steps)
+1. **Clarify** — input type, size, constraints, edge cases (2 min)
+2. **Brute force** — state it even if not coding it
+3. **Optimize** — identify bottleneck, name the pattern
+4. **Code** — clean, meaningful variable names
+5. **Test** — trace through 1-2 examples + edge cases
+6. **Complexity** — always state time & space at end
