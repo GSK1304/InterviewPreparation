@@ -56,6 +56,14 @@ springdoc:
   swagger-ui:
     path: /swagger-ui.html
     display-request-duration: true
+    try-it-out-enabled: true
+
+# Allow Spring to honour X-Forwarded-Prefix sent by the gateway.
+# This makes SpringDoc generate server URLs relative to the gateway
+# path (/api/parking, /api/splitwise etc.) instead of the service's
+# random direct port — so Swagger UI works correctly via localhost:8080.
+server:
+  forward-headers-strategy: framework
 
 logging:
   level:

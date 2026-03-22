@@ -213,6 +213,45 @@ STS will download all dependencies (first time ~3–5 minutes).
 
 ---
 
+## Step 1.5 — ⚠️ Run Maven Build Before Starting Any Service
+
+**This step is critical and easy to miss.**
+
+After importing, STS knows about the projects but hasn't run Maven yet. Until Maven runs `process-resources`, the `src/main/resources/` folder contents (including `application.yml` and `db/migration/*.sql`) are **not copied to `target/classes/`** — so Spring Boot cannot find them at runtime.
+
+**Symptoms if you skip this step:**
+- Service starts on port **8080** instead of a random port (`application.yml` not read)
+- Flyway logs `No migrations found. Are your locations set up correctly?`
+- Service registers as `UNKNOWN` in Eureka instead of its name (`spring.application.name` not read)
+- `APPLICATION FAILED TO START: Port 8080 already in use` (because api-gateway also defaults to 8080)
+
+**Fix — run Maven build on the parent project:**
+
+```
+Right-click lld-springboot-parent in Package Explorer
+  → Run As → Maven build...
+  → Goals: clean package -DskipTests
+  → Run
+```
+
+Wait for `BUILD SUCCESS` in the Console (first time ~2-3 minutes).
+
+You should see:
+```
+[INFO] BUILD SUCCESS
+[INFO] Total time: 2:XX min
+```
+
+**After any code change**, run Maven build again before restarting the service.
+
+To automate this, enable:
+```
+STS → Preferences → Maven → Automatically update Maven projects
+  → check: Automatically update Maven projects
+```
+
+---
+
 ## Step 2 — Open Boot Dashboard
 
 The Boot Dashboard is the control panel for all your Spring Boot apps.
@@ -459,6 +498,26 @@ eureka:
 ---
 
 ## Common Issues
+
+### Issue: Service starts on port 8080 / registers as UNKNOWN / Flyway finds no migrations
+
+**Symptom:**
+```
+APPLICATION FAILED TO START: Port 8080 was already in use
+Flyway: No migrations found. Are your locations set up correctly?
+Registering application UNKNOWN with eureka
+```
+
+**Cause:** Maven `process-resources` hasn't run yet. The `src/main/resources/` folder (containing `application.yml` and SQL migrations) is not copied to `target/classes/` so Spring Boot can't find any of it.
+
+**Fix:**
+```
+Right-click lld-springboot-parent → Run As → Maven build...
+  → Goals: clean package -DskipTests → Run
+```
+Wait for `BUILD SUCCESS`, then start the service.
+
+---
 
 ### Issue: "Could not resolve placeholder 'random.value'"
 **Cause:** Spring Cloud not on classpath.
