@@ -110,6 +110,25 @@ Service Discovery:
   - TTL = heartbeat interval (30s)
 ```
 
+### ⚡ Multi-Instance WebSocket Problem — How Chat Solves It
+
+> **The problem:** User A's WebSocket lives on Chat Server 1. User B sends a message — it arrives at Chat Server 3. Chat Server 3 cannot push to User A directly (no socket). How?
+
+**Solution used here: Service Discovery + Kafka routing**
+```
+Chat Server 3 receives message for User A:
+  1. Lookup Redis: GET user:{userA}:server → "chat-server-1"
+  2. Publish to Kafka topic partitioned by chat-server-1's ID
+  3. Chat Server 1 consumes from its own Kafka partition
+  4. Chat Server 1 has User A's socket → pushes message ✅
+
+This is equivalent to Redis Pub/Sub (channel per server):
+  PUBLISH server:chat-server-1 {message for userA}
+  Chat Server 1 is subscribed → receives → delivers to userA's socket
+```
+
+> 📖 For full breakdown of all multi-instance SSE/WebSocket scaling solutions (Redis Pub/Sub, sticky sessions, dedicated gateway, consistent hashing), see `12-Communication-Patterns.md` → Section 5.
+
 ### Message Flow (Online-to-Online)
 ```
 1. User A sends "Hello" via WebSocket to Chat Server 1

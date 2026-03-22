@@ -141,6 +141,25 @@ Status field: AVAILABLE, ON_TRIP, OFFLINE
   GEOADD drivers:available vs drivers:on_trip (separate sets)
 ```
 
+### ⚡ Multi-Instance WebSocket Problem — How Uber Solves It
+
+> **The problem:** The rider's WebSocket lives on Gateway Instance 1. The driver's location update arrives at Location Service Instance 3. How does Instance 3 push the location to the rider on Instance 1?
+
+**Solution: Redis Pub/Sub per active trip**
+```
+Driver sends location update → Location Service (any instance):
+  1. Update Redis GEOADD
+  2. Check: driver has active trip:{tripId}
+  3. PUBLISH channel:trip:{tripId}:location  {lat, lng, heading, eta}
+
+All Gateway instances subscribed to channels for their active rider sessions:
+  Instance 1 subscribed to channel:trip:{tripId}:location (rider A is in this trip)
+  Instance 1 receives Redis msg → finds rider A's WebSocket → pushes location ✅
+  Other instances receive msg → no rider session for this trip → ignore
+```
+
+> 📖 Full multi-instance scaling patterns in `12-Communication-Patterns.md` → Section 5.
+
 ---
 
 ## Step 6: Matching Engine

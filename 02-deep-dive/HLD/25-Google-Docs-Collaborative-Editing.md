@@ -309,6 +309,45 @@ At Netflix/Google scale: dedicated collaboration cluster per large document
 "Rooms": each document is a room on one collaboration server
 ```
 
+### ⚡ The Multi-Instance WebSocket Problem in Detail
+
+> **The core question:** Editor A's WebSocket lives on ColabServer-1. Editor B (on ColabServer-2) submits an operation. ColabServer-2 must broadcast the operation to Editor A — but has no socket to Editor A. How?
+
+**With document-affinity routing (option 1):**
+```
+Both Editor A and Editor B are always routed to the SAME server
+  hash(docId) % numServers → ColabServer-1 owns this document
+  All editors of this doc → connect to ColabServer-1
+  ColabServer-1 has ALL sockets → broadcasts directly ✅
+  
+  Problem: ColabServer-1 crashes → all editors lose connection
+  Recovery: consistent hashing + replica (ColabServer-2 takes over)
+```
+
+**With Redis Pub/Sub stateless approach (option 2):**
+```
+No affinity routing — any server handles any editor:
+  Editor A → ColabServer-1 (random assignment)
+  Editor B → ColabServer-3 (random assignment)
+
+Editor B submits operation to ColabServer-3:
+  ColabServer-3 applies OT, stores in Redis
+  PUBLISH channel:doc:{docId}  {transformedOp}
+
+ALL servers subscribed to channel:doc:{docId}:
+  ColabServer-1 receives → has Editor A's socket → pushes op ✅
+  ColabServer-2 receives → has Editor C's socket → pushes op ✅
+  ColabServer-3 receives → has Editor B's socket → pushes op (echo) ✅
+  
+Tradeoff vs affinity:
+  ✅ No SPOF per document, no reconnect surge on server failure
+  ✅ Any server can join/leave transparently
+  ❌ Redis round-trip on every operation (adds ~1ms)
+  ❌ OT state must be in Redis (not server memory) → slightly more complex
+```
+
+> 📖 Full multi-instance scaling patterns in `12-Communication-Patterns.md` → Section 5.
+
 ---
 
 ## Interview Q&A

@@ -200,6 +200,18 @@ Architecture:
   Location fan-out:
     Kafka consumer per active order subscription
     Push location update to customer's WebSocket/SSE connection
+
+  ⚡ Multi-instance SSE problem:
+    Customer's SSE connection lives on Gateway Instance 1.
+    Kafka consumer runs on Worker Instance 2.
+    Worker 2 can't push to customer directly — no socket.
+    
+    Solution: Redis Pub/Sub
+      Worker 2: PUBLISH channel:order:{orderId}:location {lat, lng, eta}
+      All Gateway instances subscribed to this channel
+      Instance 1 receives → has customer's SSE socket → pushes ✅
+    
+    (See 12-Communication-Patterns.md → Section 5 for full patterns)
     
   ETA recalculation:
     Every location update → recalculate ETA (route + traffic)
