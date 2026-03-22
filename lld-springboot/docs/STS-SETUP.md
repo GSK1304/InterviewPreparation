@@ -10,22 +10,176 @@
 | Requirement | Version | Notes |
 |-------------|---------|-------|
 | STS | 4.20+ | Download from [spring.io/tools](https://spring.io/tools) |
-| JDK | 21+ | Must be registered in STS |
+| JDK | 21+ | Must be installed separately — see below |
 | Maven | Bundled in STS | No separate install needed |
 
-### Register JDK 21 in STS
+---
 
-If STS defaults to an older JDK:
+## ⚠️ Fix First — STS shows JRE 17 but you need JDK 21
+
+This is the most common setup issue on Mac. STS ships with an embedded JRE 17
+and registers it as the default. You need to:
+
+1. Install JDK 21 on your Mac (if not already installed)
+2. Tell STS where JDK 21 is
+3. Switch the default from JRE 17 to JDK 21
+4. Set compiler compliance to 21
+5. Point the Execution Environment to JDK 21
+
+**Do all 5 steps before importing the project.** Skipping any one of them
+causes build errors or services that silently run on JRE 17.
+
+---
+
+### Step 0 — Install JDK 21 on Mac
+
+**Check if JDK 21 is already installed:**
+```bash
+/usr/libexec/java_home -V
+# Lists all installed JDKs. Look for 21.x.x in the output.
+```
+
+**If JDK 21 is NOT listed, install it:**
+
+Option A — Homebrew (recommended):
+```bash
+brew install --cask temurin@21
+```
+
+Option B — Download manually from [adoptium.net](https://adoptium.net) → Temurin 21 → macOS → `.pkg` installer → run it.
+
+**After installing, confirm the path:**
+```bash
+/usr/libexec/java_home -v 21
+# Example output:
+# /Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home
+```
+
+Copy this path — you will need it in the next step.
+
+---
+
+### Step 1 — Register JDK 21 in STS as an Installed JRE
 
 ```
-Window → Preferences → Java → Installed JREs
-  → Add → Standard VM → Directory → point to JDK 21 home
-  → Check the new entry as default
+STS menu → STS → Preferences         (Mac: top-left app menu, not Window)
+  → Java → Installed JREs
 ```
 
-Verify:
+You will see something like:
 ```
-Window → Preferences → Java → Compiler → Compiler compliance level → 21
+☑ jre-17   /path/to/sts/jre   (this is STS's bundled JRE — leave it, just uncheck it)
+```
+
+Click **Add**:
+```
+→ JRE Type: Standard VM → Next
+→ JRE home: click Directory → navigate to your JDK 21 home
+    e.g. /Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home
+→ STS auto-fills JRE name: "temurin-21" (or similar)
+→ Finish
+```
+
+Now in the Installed JREs list:
+```
+☐ jre-17       /path/to/sts/jre          ← uncheck this
+☑ temurin-21   /Library/.../Contents/Home ← check THIS as default
+```
+
+Click **Apply and Close**.
+
+> **Key point:** You are selecting the `Contents/Home` folder inside the `.jdk` bundle,
+> not the `.jdk` folder itself. The correct folder contains `bin/`, `lib/`, `release`.
+
+---
+
+### Step 2 — Set Compiler Compliance Level to 21
+
+```
+STS → Preferences → Java → Compiler
+  → Compiler compliance level → 21
+  → Apply and Close
+```
+
+---
+
+### Step 3 — Repoint the Execution Environment
+
+This is what makes Maven inside STS actually compile with JDK 21.
+
+```
+STS → Preferences → Java → Installed JREs → Execution Environments
+  → Select: JavaSE-21 (in the left list)
+  → On the right panel, check the box next to temurin-21
+  → Apply and Close
+```
+
+If you don't do this step, Maven will compile your code with JRE 17 even though
+the default JRE is set to JDK 21.
+
+---
+
+### Step 4 — Point STS's own JVM to JDK 21 (optional but recommended)
+
+STS itself runs on a JVM. You can point it to JDK 21 so everything is consistent.
+
+```bash
+# Find STS app location
+# It's usually in /Applications/SpringToolSuite4.app
+
+# Open the ini file
+open -e /Applications/SpringToolSuite4.app/Contents/Eclipse/SpringToolSuite4.ini
+```
+
+Find the `-vm` section (usually near the top). It will look like:
+```
+-vm
+/Applications/SpringToolSuite4.app/Contents/MacOS/../jre/bin/java
+```
+
+Replace it with your JDK 21 path:
+```
+-vm
+/Library/Java/JavaVirtualMachines/temurin-21.jdk/Contents/Home/bin/java
+```
+
+Save the file, then **fully quit and relaunch STS**.
+
+> This step makes the "About STS" screen show Java 21. It's optional for
+> running the projects but removes any ambiguity.
+
+---
+
+### Step 5 — Verify Everything
+
+**Check 1 — Default JRE in preferences:**
+```
+STS → Preferences → Java → Installed JREs
+The checked entry should be temurin-21 (or your JDK 21)
+```
+
+**Check 2 — Compiler level:**
+```
+STS → Preferences → Java → Compiler → shows 21
+```
+
+**Check 3 — Terminal check:**
+```
+STS → Terminal → Open Terminal → type:
+java -version
+# should print: openjdk version "21.x.x"
+```
+
+**Check 4 — After importing projects (see Step 1 below), right-click any project:**
+```
+Properties → Java Build Path → Libraries tab
+  → JRE System Library should show [temurin-21] or [JavaSE-21]
+  (NOT [J2SE-1.7] or [JavaSE-17])
+```
+
+If Check 4 shows an old JDK:
+```
+Right-click project → Maven → Update Project → Select All → Force Update → OK
 ```
 
 ---
@@ -64,7 +218,7 @@ STS will download all dependencies (first time ~3–5 minutes).
 The Boot Dashboard is the control panel for all your Spring Boot apps.
 
 ```
-Window → Show View → Other → Spring → Boot Dashboard
+STS → Window → Show View → Other → Spring → Boot Dashboard
 ```
 
 Or use the toolbar shortcut: the Spring leaf icon in the top bar.
