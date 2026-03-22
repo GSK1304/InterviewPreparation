@@ -57,6 +57,11 @@ springdoc:
     path: /swagger-ui.html
     display-request-duration: true
     try-it-out-enabled: true
+    # Explicitly point config-url to gateway-relative path so Swagger UI
+    # fetches its config through the gateway (port 8080) not the direct port.
+    config-url: /api/atm/api-docs/swagger-config
+    url: /api/atm/api-docs
+    oauth2-redirect-url: http://localhost:8080/api/atm/swagger-ui/oauth2-redirect.html
 
 # Allow Spring to honour X-Forwarded-Prefix sent by the gateway.
 # This makes SpringDoc generate server URLs relative to the gateway
