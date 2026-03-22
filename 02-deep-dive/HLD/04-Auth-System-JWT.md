@@ -299,3 +299,22 @@ Input Validation:
 | Cookie type | HttpOnly Secure | Prevents XSS token theft |
 | Revocation | Denylist + short TTL | Simple, fast, no global state needed |
 | WebSocket auth | One-time token | Avoids long-lived token in URL |
+
+---
+
+## Interview Q&A
+
+**Q: JWT is stateless — what are the tradeoffs versus stateful sessions?**
+A: JWT (stateless): no DB lookup per request (fast), horizontally scalable (any server validates), but cannot be revoked before expiry without a denylist (adding statefulness). Session tokens (stateful): stored in DB or Redis, can be revoked instantly, but require a lookup on every request (adds latency) and a centralised session store (potential SPOF). The right choice: use JWT with short TTL (15 min) for microservices — the performance benefit outweighs the revocation limitation. If instant revocation is required (security breach response), add a Redis denylist keyed by JTI. Don't use JWT for sessions that must be instantly revocable without this extra layer.
+
+**Q: How do you rotate signing keys without invalidating all existing tokens?**
+A: Use the `kid` (key ID) field in the JWT header. Maintain multiple active keys simultaneously. When rotating: (1) Generate new key pair (new `kid`). (2) Publish both old and new public keys in the JWKS endpoint for an overlap period (e.g., 1 week). (3) Start signing new tokens with the new private key. (4) Old tokens (signed with old key) continue to validate — their `kid` points to the old public key still in JWKS. (5) After token TTL has passed (all old tokens expired), remove the old key from JWKS. (6) Clients/services cache JWKS with a short TTL (1 hr) and re-fetch when they encounter an unknown `kid`. Zero downtime rotation.
+
+**Q: What is the OAuth2 PKCE flow and when do you use it instead of the standard auth code flow?**
+A: PKCE (Proof Key for Code Exchange) is for public clients that cannot safely store a client_secret — mobile apps, SPAs, CLI tools. Standard auth code flow uses `client_secret` to exchange the auth code for tokens. Mobile apps can't keep secrets (anyone can decompile the app). PKCE replaces the secret with: (1) App generates a random `code_verifier` and its hash `code_challenge`. (2) Sends `code_challenge` in the auth request. (3) Exchanges code using the original `code_verifier` (only the legitimate app knows it). (4) Server verifies hash matches. No secret stored in the app. Use PKCE for all public clients; use standard auth code flow for confidential server-side clients.
+
+**Q: How do you implement SSO (Single Sign-On) across multiple applications?**
+A: Central Identity Provider (IdP) — Okta, Auth0, or self-built. Flow: (1) User tries to access App A, not authenticated. (2) App A redirects to IdP: `idp.example.com/auth?client_id=app-a&redirect_uri=...`. (3) User authenticates at IdP (once). (4) IdP issues an authorization code, redirects to App A. (5) App A exchanges code for tokens (contains user identity). (6) User tries to access App B — IdP checks its own session cookie — already authenticated — skips login — issues tokens for App B. The IdP session cookie is the "single sign-on" mechanism. Single sign-out: logging out of IdP invalidates the session cookie → all apps must re-authenticate.
+
+**Q: How would you design MFA (Multi-Factor Authentication)?**
+A: After password verification, if user has MFA enabled: generate a 6-digit TOTP (Time-based One-Time Password) using the HMAC-SHA1 of (secret_key + floor(now/30)) — changes every 30 seconds. The user's authenticator app (Google Authenticator, Authy) generates the same code from the same secret. Server validates the code ± 1 time window (for clock drift). Recovery codes: generate 10 random 8-character codes at MFA setup time, store bcrypt hashes, show to user once to save. For SMS-based OTP: generate a random 6-digit code, store in Redis with TTL=300s, send via Twilio, validate on submission. TOTP is more secure than SMS (SIM swap attacks), so prefer TOTP when possible.

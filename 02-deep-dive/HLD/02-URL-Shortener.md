@@ -218,3 +218,22 @@ User visits tinyurl.com/abc123:
 | Redirect service down | Users can't redirect | Multiple instances + health checks |
 | Snowflake ID generator down | Can't create short URLs | Multiple ID generator instances |
 | Hash collision (MD5 approach) | Wrong redirect | Check uniqueness + retry with incremented suffix |
+
+---
+
+## Interview Q&A
+
+**Q: Why use Base62 encoding instead of just using the auto-increment ID directly?**
+A: The raw auto-increment ID (e.g., 10,000,000) is long, predictable, and sequential — users can enumerate all short URLs by incrementing. Base62 (62^6 ≈ 56 billion) gives a short alphanumeric string that isn't sequential (10M → "43sZ9a"), looks clean in a URL, and avoids ambiguous characters (no 0/O, 1/l confusion). It also gives flexibility: you can encode any unique ID, not just sequential ones. If you use Snowflake IDs (which include timestamp + machine + sequence), Base62 encoding still produces a short ~8-character string that encodes uniqueness without exposing sequential order.
+
+**Q: How would you implement custom aliases (e.g., tinyurl.com/my-brand)?**
+A: Store custom aliases in the same `urls` table with the `short_code` column — custom aliases are just non-Base62-encoded codes. Add a uniqueness constraint on `short_code`. On creation: if `customAlias` is provided, check if it's available (SELECT FOR UPDATE to prevent races), if taken return 409 Conflict, if available insert with that alias. Validate the alias (alphanumeric, hyphens, max 20 chars, no reserved words like "api", "admin", "health"). Custom aliases are premium features that drive revenue — charge for them.
+
+**Q: How would you handle analytics — tracking click counts by country, device, referrer?**
+A: Don't write analytics synchronously to the DB on every click (too slow, blocks hot path). On redirect: extract User-Agent, IP (→ country via MaxMind GeoIP), Referer header, then publish a click event to Kafka: `{shortCode, timestamp, country, device, referrer}`. A Flink/Spark consumer aggregates: count per shortCode per day per dimension. Write to a time-series store (ClickHouse or TimescaleDB). API: `GET /urls/{code}/analytics?period=7d` queries the analytics store, not the URL DB. Approximate counts displayed to users (update every 5 min from aggregations).
+
+**Q: What happens when the same long URL is submitted by two different users simultaneously?**
+A: Two options: (1) Deduplicate — hash the long URL, check if it exists, return the existing short code. Users share a short URL for the same long URL. Simple, saves storage, but leaks that others use the same URL. (2) No deduplication — always generate a new short code. Users get unique short URLs even for the same long URL. Allows independent analytics per user, independent expiry. Most services (bit.ly, TinyURL) do NOT deduplicate — each user gets their own short URL. Deduplication requires a separate index on `hash(long_url)` and careful handling of concurrent inserts.
+
+**Q: How do you design for 100% availability during a DB maintenance window?**
+A: Active-passive DB with automatic failover (< 30s using PostgreSQL streaming replication + Patroni or RDS Multi-AZ). For the redirect path specifically: cache the shortCode→longURL mapping aggressively in Redis with a longer TTL (e.g., 1 hour). During DB failover window (< 30s), Redis serves all redirects without touching DB. New URL creation fails gracefully with a "service temporarily unavailable" message — acceptable since redirects are 100× more common than creates. For full HA: active-active across two regions with DNS failover (GeoDNS with health checks).

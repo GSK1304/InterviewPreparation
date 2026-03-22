@@ -315,3 +315,22 @@ Architecture:
 | Audit | Cassandra append-only | Write-heavy, immutable, time-series queries |
 | Dropdown cache | Redis + Spring StaticCacheOrchestrator | 200 fields pre-loaded; O(1) lookup |
 | Auth | 3-token JWT + RSA | Stateless verification; microservice-friendly |
+
+---
+
+## Interview Q&A
+
+**Q: How do you ensure a pricing grid update doesn't show partially-updated data to the trader?**
+A: Atomic batch updates using TanStack Form's `setFieldValue` batching — all field updates for one pricing response are applied in a single React state transaction, preventing partial renders. On the server side: the pricing response is a complete snapshot (all Greeks for all legs), not a partial update. If a field clearing operation is triggered, the clearing system applies all rules atomically before rendering using a declarative rule engine (FIELD_CLEAR_MAPPING), not field-by-field. For WebSocket: the STOMP frame contains the complete pricing payload — the client applies it atomically when the full frame arrives.
+
+**Q: How would you handle market data outages during active trading hours?**
+A: Graceful degradation with staleness indicators: (1) Set a "last updated" timestamp on every price. (2) If market data feed goes stale (no update in 10 seconds), flag all dependent pricing fields with a "stale" indicator (amber colour instead of black). (3) Circuit breaker: if market data service is down, the pricing service returns last known values with `isStale: true`. (4) Traders see the amber indicator and know not to rely on current prices. (5) New RFQs are blocked during stale market data (configurable). (6) Alert operations team immediately — market data outage during trading hours is P0. Recovery: once feed resumes, staleness flag clears and fields update.
+
+**Q: How do you prevent front-running in an RFQ system?**
+A: Front-running = a market maker sees an RFQ and trades for their own account before pricing the client. Mitigations: (1) Time-limited RFQ window (30 seconds) — reduces window for front-running. (2) Blind RFQ — multiple market makers receive the same RFQ simultaneously without knowing other respondents. (3) Audit trail — every action timestamped to millisecond (kACE's Cassandra audit log) for regulatory review. (4) Surveillance system — flag if a market maker's proprietary trades coincide suspiciously with RFQ timing. (5) Regulatory requirement: MiFID II mandates pre-trade transparency and audit logs, which the kACE audit service provides.
+
+**Q: How does the system handle 52 strategies × 4 legs × 200 fields when a spot rate changes?**
+A: Field clearing cascade: changing spot rate → triggers `clearingLayoutUtils.ts` rules → determines which calculated fields must clear across all legs. Key optimisations: (1) Only process the affected fields (sparse update, not full grid rebuild). (2) `statusFilterOtherLegs` prevents clearing user-entered (blue) fields in unaffected legs. (3) Batch `setFieldValue`: instead of 200+ individual React state updates, collect all changes → apply in 2 batched calls. (4) `useFormValues` shared cache: avoid redundant subscriptions across 41,600 cells. (5) Virtual rendering: only DOM elements for visible cells are rendered. Net result: sub-100ms update for full grid pricing refresh.
+
+**Q: How would you scale the kACE pricing service to handle 10× the current load?**
+A: Current: stateless pricing service + shared Redis for vol surface. At 10×: (1) Horizontal scaling of pricing service instances — stateless, add more pods (K8s HPA on CPU). (2) Shard vol surface by currency pair in Redis — each pod caches only the pairs it serves. (3) Kafka partitioning: partition RFQ events by currency pair → each pricing service shard owns specific pairs → reduces cross-instance communication. (4) Read replicas for the PostgreSQL layout config DB — 10× more traders loading configs. (5) CDN for static assets (React bundle, dropdown data) — offload origin completely. (6) Introduce a tiered market data cache: L1 in-process (per instance, 1-second TTL) + L2 Redis (shared, 5-second TTL) — reduces Redis load by 60%.

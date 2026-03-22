@@ -304,3 +304,22 @@ Implementation:
   - Email: Spring Mail with Thymeleaf templates
   - Priority: RFQ events = HIGH; trade confirms = CRITICAL
 ```
+
+---
+
+## Interview Q&A
+
+**Q: How do you prevent notification spam when a single event triggers hundreds of notifications?**
+A: Notification batching and aggregation. Instead of "X liked your post" × 50 = 50 push notifications, send one "X and 49 others liked your post." Implementation: hold notification delivery for 5-10 minutes (configurable per type). Aggregate window: `notifications:{userId}:{type}:{entityId}` in Redis as a counter + list of actors. When the window expires (or reaches a threshold like 5 actors), send one aggregated notification. Separate urgency tiers: security alerts and messages = immediate, no batching; social (likes, follows) = batch with 5-min window; marketing = digest (daily/weekly). The Kafka topic priority queues support these tiers.
+
+**Q: How would you implement notification preferences at scale — 1B users, 20 notification types?**
+A: Sparse storage: only store non-default preferences. Most users have default preferences — store only overrides. `notification_preferences(userId, channel, category, enabled)` with a composite index. For a user with all defaults: zero rows. Only when they change something: insert a row. At read time: if no row found → apply default. Cache in Redis (TTL 5 min): `pref:{userId}:{channel}:{category}` → 0/1. Default table in config (not DB) for zero-DB-overhead default lookups. 1B users × avg 0.1 non-default prefs = 100M rows (manageable). Read path: Redis (99% hit rate) → DB → default.
+
+**Q: A user reports they're receiving notifications for deleted content. How do you debug and fix it?**
+A: This is a race condition: event published to Kafka before deletion is committed, or notification delivery happens after deletion. Debug: trace the notification event ID through Kafka → look at event timestamp vs deletion timestamp in DB. Fix: (1) Check content existence before delivering notification — "does this post still exist?" query before sending push. (2) Transactional outbox pattern: publish the notification event in the same DB transaction as the content creation — events only appear after commit, guaranteeing consistency. (3) Soft-delete awareness: if content is soft-deleted, mark pending notifications as cancelled. (4) Idempotent check: notification worker checks before sending push.
+
+**Q: How do you handle push notification delivery to a user who has multiple devices?**
+A: Store all device tokens per user: `device_tokens(userId, platform, token, lastActiveAt)`. On send: iterate all active tokens for the user, send to each. Handle token invalidation: if APNs/FCM returns `InvalidToken` error → delete that token from DB. Update `lastActiveAt` on each successful delivery. Multiple devices = same notification on all active devices — this is correct behavior (user expects to see it on their phone AND tablet). For "mark as read on one device = mark as read everywhere": use a WebSocket push to all devices when any device acknowledges. Store read state server-side, not just client-side.
+
+**Q: How would you design the notification system to support WhatsApp-style delivery receipts?**
+A: Three-state delivery tracking per notification per device: sent (pushed to APNs/FCM), delivered (device confirmed receipt), opened (user tapped). Implementation: (1) Sent: push notification contains a unique `notificationId`. Record in DB: `{notificationId, userId, deviceId, status: 'sent', sentAt}`. (2) Delivered: mobile app SDK sends a "delivery ack" API call when notification arrives in device tray (even if app not open). Update status to 'delivered'. (3) Opened: app sends an "opened" event when user taps. Update to 'opened'. Use these signals to: optimise send times (when is this user most likely to open?), measure campaign effectiveness, debug delivery issues.

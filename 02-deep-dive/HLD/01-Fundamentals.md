@@ -312,3 +312,22 @@ Market Data Service → DB (PostgreSQL)
 8. Design a rate limiter
 9. Design a web crawler
 10. Design a distributed cache (Redis-like)
+
+---
+
+## Interview Q&A
+
+**Q: A system is read-heavy (95% reads, 5% writes). Walk through how you would design it.**
+A: Start with the read path. Add read replicas to the DB — most reads go to replicas, writes go to primary. Add a caching layer (Redis) in front of the replicas: cache-aside pattern, TTL tuned to acceptable staleness. Add a CDN for any content that can be served at the edge. Scale app servers horizontally (stateless, behind a load balancer). The write path stays simple — primary DB with connection pooling. Only introduce async writes (message queue) if writes start becoming a bottleneck.
+
+**Q: When would you choose eventual consistency over strong consistency?**
+A: Choose eventual consistency when: (1) the data being stale for a short window doesn't meaningfully harm user experience (social feed, view counts, "users online"), (2) availability is more important than precision, (3) data is written from multiple regions and synchronous replication would add too much latency. Choose strong consistency when: financial transactions, inventory counts, auth tokens, or any case where acting on stale data causes real damage. A useful heuristic: would a user notice or be harmed if they saw data that's 5 seconds out of date? If yes, use strong consistency.
+
+**Q: How do you handle a thundering herd when your cache layer goes down?**
+A: The thundering herd happens because all requests miss the cache simultaneously and hammer the DB. Mitigations: (1) Mutex/lock — only one thread rebuilds a given cache key, others wait and retry. (2) Stale-while-revalidate — serve the expired cached value while asynchronously refreshing it. (3) Circuit breaker on the DB — if DB latency spikes, fail fast rather than pile on. (4) Request coalescing — deduplicate inflight requests for the same cache key. (5) Pre-warm cache before bringing it back up by replaying recent DB reads.
+
+**Q: You have a service that must guarantee exactly-once processing of events. How do you design it?**
+A: Exactly-once delivery is hard to guarantee end-to-end. The practical approach is at-least-once delivery + idempotent consumers. Every event carries a unique `eventId`. Before processing, the consumer checks: `INSERT INTO processed_events(eventId) ON CONFLICT DO NOTHING` — if 0 rows inserted, already processed, skip. If 1 row inserted, process and commit atomically. This pattern gives effectively exactly-once semantics even with retries. Kafka's transactional producer provides exactly-once within a Kafka pipeline, but you still need idempotency at the final consumer.
+
+**Q: What's the difference between a reverse proxy and an API gateway?**
+A: A reverse proxy handles traffic routing, SSL termination, load balancing, and caching — it's infrastructure-level. An API gateway does all of that PLUS API-level concerns: authentication, authorisation, rate limiting per user/endpoint, request/response transformation, protocol translation (REST to gRPC), and API analytics. Think of a reverse proxy as "smart infrastructure" and an API gateway as "smart application layer." Nginx is a reverse proxy. Kong or AWS API Gateway are API gateways. In microservices, you typically have both: a reverse proxy at the network edge and an API gateway in front of your services.
