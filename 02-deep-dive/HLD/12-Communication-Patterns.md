@@ -256,6 +256,209 @@ Example: Twitter timeline
 
 ---
 
+## 5. Scaling SSE and WebSocket Across Multiple Instances
+
+This is one of the most commonly asked follow-up questions in system design interviews. Understanding it deeply separates candidates who understand distributed systems from those who only know the protocol.
+
+### The Core Problem
+
+SSE and WebSocket create **persistent, stateful TCP connections** — a client's socket lives on exactly one server instance. This breaks horizontal scaling.
+
+```
+Client A ──SSE──► Instance 1   ← socket lives HERE
+Client B ──SSE──► Instance 2
+Client C ──SSE──► Instance 3
+
+Order event fires → hits Instance 2's REST handler
+Client A needs to be notified → but Instance 2 has no socket to Client A
+
+Instance 2 cannot push to Client A directly. ❌
+```
+
+Compare this with REST, which is stateless — any instance can handle any request. SSE/WebSocket don't have this property, and this is the design problem you must solve.
+
+---
+
+### Solution 1: Redis Pub/Sub (Standard Production Answer)
+
+Every instance subscribes to Redis channels. When an event fires on any instance, it publishes to Redis. Redis fans it out to all instances. Only the instance that owns the socket actually delivers it.
+
+```
+                     Redis Pub/Sub
+                ┌──────────────────────────┐
+                │  Channel: order:{orderId} │
+                └──────────────────────────┘
+                     ▲              │
+                     │ PUBLISH      │ broadcasts to ALL subscribers
+                     │              ▼
+ ┌──────────────┐   ┌─────────────────────────────────────────────┐
+ │ Order Service│──►│  Instance 1    Instance 2    Instance 3      │
+ │ (any node)   │   │  (has ClientA) (has ClientB) (has ClientC)  │
+ └──────────────┘   └─────────────────────────────────────────────┘
+                          │
+                     Client A receives update ✅
+                     Instance 2 & 3: receive Redis msg but have no
+                     socket for Client A → silently ignore
+```
+
+**Step-by-step flow:**
+```
+1. Client A opens SSE to Instance 1
+   → Instance 1 registers: SUBSCRIBE channel:user:{userId}
+
+2. Order is placed → Order Service (on Instance 2) processes it
+   → PUBLISH channel:user:{userId}  {"event":"order.delivered","data":{...}}
+
+3. Redis delivers to ALL instances subscribed to that channel
+
+4. Instance 1 receives message → has Client A's open socket → pushes SSE event ✅
+   Instance 2 receives message → no socket for Client A → ignores
+   Instance 3 receives message → no socket for Client A → ignores
+```
+
+**Channel naming patterns:**
+```
+Per user:      channel:user:{userId}          → all events for a user
+Per resource:  channel:order:{orderId}         → order status updates
+Per topic:     channel:rfq:{rfqId}             → trading RFQ updates
+Per room:      channel:doc:{docId}             → collaborative editing
+```
+
+**Why this works at scale:**
+- Redis Pub/Sub delivers in < 1ms
+- Each instance only holds connections for its own clients — memory efficient
+- Adding instances: new instance subscribes to Redis channels → immediately participates
+- Removing instances: clients reconnect to other instances → Redis subscriptions migrate
+
+**🏭 Industry Examples:**
+- **Socket.io**: built-in Redis adapter does exactly this — `const io = new Server({ adapter: createAdapter(pubClient, subClient) })`
+- **Discord**: Redis Pub/Sub for real-time message fan-out across gateway servers
+- **Slack**: Redis Pub/Sub for cross-instance WebSocket delivery
+- **kACE**: `SubscriptionRegistry` in Redis maps topics → session IDs; STOMP gateway uses pub/sub for cross-instance RFQ delivery
+
+---
+
+### Solution 2: Sticky Sessions (Simpler, Limited Scale)
+
+Configure the load balancer to always route a given client to the same instance using IP hash or a session cookie.
+
+```
+Client A → Load Balancer (IP hash) → always Instance 1
+Client B → Load Balancer            → always Instance 2
+Client C → Load Balancer            → always Instance 3
+
+Event fires on Instance 2 → needs to reach Client A (Instance 1)
+→ Still broken unless combined with Redis Pub/Sub or direct inter-instance call
+```
+
+**Sticky sessions alone don't solve the cross-instance push problem** — they just ensure the client always reconnects to the same instance. If an event fires on a *different* instance, you still need a messaging layer.
+
+**Where sticky sessions help:**
+- Reduce reconnection overhead (client reconnects to same instance after brief disconnect)
+- Useful for stateful protocols that need session affinity (legacy WebSocket without Redis)
+- Combined with Redis Pub/Sub: sticky sessions reduce unnecessary Redis messages (same-instance events go direct)
+
+**Tradeoffs:**
+```
+✅ Simple LB config (ip_hash in Nginx)
+✅ Reduces Redis overhead for same-instance events
+❌ Instance crash → all that instance's clients must reconnect (possibly to different instance)
+❌ Uneven load if some clients are more active
+❌ Complicates auto-scaling (new instances don't get old clients)
+❌ Doesn't solve cross-instance event delivery alone
+```
+
+---
+
+### Solution 3: Dedicated Connection Gateway
+
+A separate service owns ALL persistent connections. Application servers publish events to it; it handles delivery.
+
+```
+Client A ──SSE──►  ┌──────────────────────────────┐
+Client B ──SSE──►  │   SSE / WebSocket Gateway     │◄── any app server publishes here
+Client C ──SSE──►  │   (owns all sockets)          │    POST /push {userId, event, data}
+                   └──────────────────────────────┘
+                   Internally uses Redis Pub/Sub
+                   across its own instances
+```
+
+**Managed services that are this pattern:**
+- **Pusher** / **Ably**: SaaS real-time message delivery
+- **AWS API Gateway WebSocket**: managed WebSocket with Lambda backends
+- **Firebase Realtime Database**: managed SSE-like delivery
+
+**Build-it-yourself:** Dedicated Node.js cluster with Redis adapter (Socket.io pattern)
+
+**Tradeoffs:**
+```
+✅ Application servers stay stateless (just POST to push API)
+✅ Clean separation of concerns
+✅ Gateway scales independently
+❌ Extra network hop for every push
+❌ Additional operational complexity / cost
+```
+
+---
+
+### Solution 4: Consistent Hashing for Connection Affinity
+
+For systems with many topics/resources (like trading), assign each resource to a specific instance using consistent hashing.
+
+```
+hash(docId) % numInstances → Instance 2 owns this document's connections
+hash(rfqId) % numInstances → Instance 1 owns all connections for this RFQ
+
+API Gateway routes:
+  WebSocket for rfq:{rfqId} → always to Instance 1
+  WebSocket for rfq:{rfqId2} → always to Instance 3
+
+When event fires for rfq:{rfqId} on any service:
+  → Route to Instance 1 directly (no Redis needed for this event)
+```
+
+**Tradeoffs:**
+```
+✅ No Redis overhead for events (direct routing)
+✅ Predictable — you know which instance owns a resource
+❌ Instance failure → must rehash and migrate connections
+❌ Needs smart API Gateway that understands resource routing
+❌ More complex than Redis Pub/Sub
+```
+Used by: kACE's document-affinity routing concept, real-time trading systems
+
+---
+
+### Comparison and When to Use Each
+
+| Solution | Complexity | Scale | Failure Tolerance | Best For |
+|----------|-----------|-------|------------------|---------|
+| **Redis Pub/Sub** | Medium | Very high | High (Redis HA) | Standard production choice |
+| **Sticky sessions alone** | Low | Medium | Low (instance crash = reconnect) | Simple apps, internal tools |
+| **Sticky + Redis Pub/Sub** | Medium | High | High | Most real-world systems |
+| **Dedicated gateway** | High | Very high | High | Large scale, clean architecture |
+| **Consistent hashing** | High | High | Medium | Resource-partitioned systems |
+
+**The answer interviewers expect:**
+
+> "Each SSE/WebSocket connection is tied to one server instance. When an event fires on a different instance, it can't push directly. The standard solution is Redis Pub/Sub — the instance handling the event publishes to a channel keyed by userId or resourceId. All instances subscribe to that channel. The instance holding the socket receives the Redis message and pushes to the client. This fully decouples event generation from connection ownership and works across any number of instances."
+
+---
+
+### How This Applies to Each System in This Repo
+
+| System | How It Solves Multi-Instance Push |
+|--------|----------------------------------|
+| **Chat (WhatsApp)** | Service discovery (user → server mapping in Redis) + inter-server Kafka routing |
+| **Food Delivery** | Redis Pub/Sub on order channel; driver location SSE fan-out |
+| **Uber** | Redis GEOADD + Pub/Sub for trip location stream |
+| **Google Docs** | Redis Pub/Sub for presence updates; document-affinity for OT server |
+| **Stock Exchange** | Consistent hashing (symbol → matching engine instance); UDP multicast for market data |
+| **kACE Trading** | Redis SubscriptionRegistry + Pub/Sub across STOMP gateway instances |
+| **Notification System** | Kafka consumer → WebSocket gateway (dedicated connection layer) |
+
+---
+
 ## Interview Q&A
 
 **Q: When would you use WebSocket over SSE?**

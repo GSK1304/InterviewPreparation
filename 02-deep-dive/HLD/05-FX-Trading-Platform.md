@@ -248,17 +248,29 @@ DB Schema (from kACE Confluence):
 ## Step 8: Scaling Strategies
 
 ### WebSocket Scaling
+
+> **The problem:** Trader A's WebSocket lives on Gateway Instance 1. The Pricing Service (stateless, runs on Instance 3) computes a new price for rfq:{rfqId}. Instance 3 has no WebSocket connection to anyone — how does the price reach Trader A on Instance 1?
+
+**Answer: Redis Pub/Sub via SubscriptionRegistry**
+
 ```
 Problem: WebSocket = stateful; can't route to any server
 Solution 1: Sticky Sessions (IP Hash at LB)
-  - Same user always goes to same Chat Server
-  - Problem: Server failure loses all sessions
+  - Same user always goes to same Gateway instance
+  - Downside: server failure loses all sessions on that instance
 
-Solution 2: Shared State in Redis (kACE approach)
-  - SubscriptionRegistry: Redis stores {userId → serverId, topic → [sessionIds]}
-  - Any server can handle any user; routes via Redis lookup
+Solution 2: Redis Pub/Sub + SubscriptionRegistry (kACE approach)
+  - SubscriptionRegistry: Redis stores {topic → [sessionId:instanceId]}
+  - Any instance can handle any event:
+      Pricing Service: PUBLISH channel:rfq:{rfqId}  {priceUpdate}
+      All Gateway instances subscribed to this channel
+      Instance 1 holds Trader A's socket → receives msg → pushes ✅
+      Instance 2/3 receive msg → no socket for this session → ignore
   - Heartbeat: TTL 60s; client reconnects on disconnect
+  - Adding gateway instances: new instance subscribes to Redis → immediately works
 ```
+
+> 📖 For full breakdown of all multi-instance SSE/WebSocket scaling patterns (Redis Pub/Sub, sticky sessions, dedicated gateway, consistent hashing — with diagrams and tradeoffs), see `12-Communication-Patterns.md` → Section 5.
 
 ### Pricing Service Scaling
 ```
