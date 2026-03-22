@@ -258,3 +258,94 @@ Solution: Consistent hashing minimises data movement on reshard
 | JWT token expiry | Access: 15 min; Refresh: 7 days |
 | Image size (compressed) | ~300 KB avg |
 | Video size (1 min, 720p) | ~50 MB |
+
+---
+
+## 🤖 AI/ML Quick Reference
+
+### RAG in One Paragraph
+Embed documents into vectors → store in vector DB → on query: embed query → find K nearest chunks (ANN search) → optionally re-rank → inject top chunks into LLM prompt → generate grounded answer. Always use the same embedding model for indexing and querying.
+
+### LLM Key Numbers
+| Metric | Value |
+|--------|-------|
+| Token ≈ | 4 chars / ¾ of a word |
+| 1K words ≈ | 1,300 tokens |
+| GPT-4o input | $2.50/1M tokens |
+| GPT-4o output | $10.00/1M tokens (4× input) |
+| TTFT target | < 500ms |
+| Generation speed target | > 20 tokens/sec |
+| Temperature for code | 0.0–0.2 |
+| Temperature for chat | 0.7 |
+
+### Vector DB Selection
+| Need | Choose |
+|------|--------|
+| Managed, quickest start | Pinecone |
+| Self-hosted + hybrid search | Weaviate / Qdrant |
+| Already on Postgres, small scale | pgvector |
+| Billion-scale | Milvus |
+| Prototyping | Chroma |
+
+### LLM Cost Reduction Priority
+1. Prompt caching (50% off cached tokens) — zero code change
+2. Model routing (cheaper model for simple queries) — 40–70% saving
+3. Semantic cache (same question → cached answer) — 20–40% hit rate
+4. Batch API for non-real-time — 50% off
+5. Self-hosted vLLM for high volume — 3–10× cheaper than API
+
+---
+
+## 🔒 SSE/WebSocket Multi-Instance Cheat Sheet
+
+```
+Problem: Client's persistent connection lives on Instance 1.
+         Event fires on Instance 2. How does Instance 2 push to client?
+
+Solution: Redis Pub/Sub
+  Instance 2: PUBLISH channel:{resourceId}  {event_data}
+  Instance 1: subscribed to channel:{resourceId} → receives → pushes to client's socket
+
+Alternative: Sticky sessions (IP hash at LB) — simpler but fails on crash
+Alternative: Dedicated gateway (Pusher, Socket.io, AWS API Gateway WS)
+Alternative: Consistent hashing — resource routed to same instance always
+
+Interview answer: "Redis Pub/Sub decouples event generation from connection
+ownership — any instance publishes, the owning instance delivers."
+```
+
+---
+
+## 🗺️ HLD Deep-Dive Coverage Map
+
+| System Design | File | Key Pattern |
+|---------------|------|-------------|
+| URL Shortener | 02 | Base62 + Snowflake ID + Redis cache |
+| Messaging (WhatsApp) | 03 | Kafka routing + Cassandra + fan-out |
+| Auth/JWT | 04 | 3-token + RSA + JWKS + familyId |
+| FX Trading (kACE) | 05 | WebSocket STOMP + Redis SubscriptionRegistry |
+| Rate Limiter | 06 | Sliding window counter + Redis Lua |
+| Notification | 07 | Multi-channel + Kafka priority + webhook signing |
+| YouTube/Netflix | 13 | HLS/DASH + CDN segments + async view count |
+| Twitter Feed | 14 | Fan-out hybrid (write small, read celebrity) |
+| Uber | 15 | Redis GEORADIUS + matching + surge pricing |
+| Google Drive | 16 | Content-addressed chunks + delta sync |
+| Autocomplete | 17 | Trie top-K pre-stored + Redis sorted set |
+| Distributed Cache | 18 | Redis internals + PagedAttention concept |
+| Web Crawler | 19 | Two-queue frontier + Bloom filter dedup |
+| Kafka | 20 | Log-based storage + ISR + consumer groups |
+| Payment Gateway | 21 | Idempotency atomic with DB + double-entry |
+| Proximity/Yelp | 22 | Redis GEORADIUS + two-step query |
+| Recommendation | 23 | ALS + Wide&Deep + Feature Store |
+| Food Delivery | 24 | Order state machine + dispatch + Redis Pub/Sub |
+| Google Docs | 25 | OT algorithm + Redis stateless approach |
+| Stock Exchange | 26 | TreeMap order book + single-threaded + WAL |
+| Zoom | 27 | SFU vs MCU + WebRTC + Simulcast |
+| CI/CD | 28 | Canary deployment + container isolation |
+| Distributed Lock | 29 | Redis SETNX + Lua + Redlock + fencing token |
+| Reddit/Quora | 30 | Hot score algorithm + vote aggregation |
+| Google Maps | 31 | Contraction hierarchies + probe data traffic |
+| How LLMs Work | 32 | Tokens + Transformer + hallucination mitigations |
+| RAG | 33 | Chunk → embed → ANN → rerank → generate |
+| LLM Inference | 34 | KV cache + PagedAttention + continuous batching |
+| LLM Billing | 35 | Token metering + Redis budget + Clickhouse |
