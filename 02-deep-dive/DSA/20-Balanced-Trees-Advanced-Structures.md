@@ -294,3 +294,165 @@ FXPair pair = symbolMap.get("EURUSD"); // O(log n)
 - **B-Tree**: Disk-optimised, all leaves same level, m-way branching
 - **B+ Tree**: Leaf-linked B-Tree → efficient range scans → used in MySQL, PostgreSQL
 - **Skip List**: Probabilistic O(log n), used in Redis sorted sets, easier concurrent impl
+
+---
+
+## 5. 2-3 Trees
+
+**What it is**: A self-balancing search tree where every internal node has **2 or 3 children**, and all leaves are at the same level. It is a special case of B-Tree of order 3.
+
+### Properties
+- **2-node**: has 1 key, 2 children (left < key < right)
+- **3-node**: has 2 keys, 3 children (left < key1 < middle < key2 < right)
+- All leaves at **same depth** — perfectly balanced
+- Height = O(log n)
+
+```
+2-3 Tree storing: 1, 2, 3, 4, 5, 6, 7
+
+         [3 | 5]
+        /   |   \
+     [1|2] [4]  [6|7]
+
+Inserting 8 → 3-node [6|7] becomes full → split:
+         [3 | 5 | 7]
+        /   |   |   \
+     [1|2] [4] [6]  [8]
+
+[3|5|7] is now a 4-node → split and push 5 up:
+              [5]
+            /     \
+         [3]       [7]
+        /   \     /   \
+     [1|2]  [4] [6]   [8]
+```
+
+### Operations
+| Operation | Time |
+|-----------|------|
+| Search | O(log n) |
+| Insert | O(log n) — split upward if 4-node formed |
+| Delete | O(log n) — merge/redistribute |
+
+### Why it Matters
+- 2-3 trees are the **conceptual foundation** of Red-Black Trees
+- A Red-Black Tree is a 2-3 tree encoded as a binary tree:
+  - 2-node → Black node
+  - 3-node → Black node with a Red left child
+- Understanding 2-3 trees makes Red-Black trees much easier to reason about
+
+```java
+// You never implement 2-3 trees directly in Java interviews
+// But the concept maps directly to:
+TreeMap<K,V>    // Red-Black Tree (2-3 tree encoded as binary)
+TreeSet<E>      // Red-Black Tree
+```
+
+### Interview Talking Point
+> "A 2-3 tree guarantees perfect balance because splits propagate upward and all leaves stay at the same level. Red-Black trees achieve the same guarantee through color invariants — they're essentially 2-3 trees encoded as binary trees where Red edges represent 3-nodes."
+
+---
+
+## 6. Indexing — Linear & Tree-Based
+
+Indexing is the mechanism that makes database queries fast. Understanding this is critical for **System Design / HLD rounds** and shows senior-level depth.
+
+### What is an Index?
+An index is a separate data structure that maps **search keys → record locations**, avoiding full table scans.
+
+```
+Without index: SELECT * FROM trades WHERE symbol = 'EURUSD'
+→ Full table scan: O(n) — reads every row
+
+With index on symbol:
+→ Index lookup: O(log n) — jump directly to matching rows
+```
+
+### Linear Indexing (Dense & Sparse)
+
+**Dense Index**: One index entry per record
+```
+Record:  [1,Alice] [2,Bob] [3,Carol] [4,Dave]
+Index:   1→page1  2→page1  3→page2  4→page2
+
+Pros: Can find any record directly
+Cons: Index itself can be large
+```
+
+**Sparse Index**: One index entry per block/page
+```
+Record pages: Page1[1,2,3,4]  Page2[5,6,7,8]  Page3[9,10]
+Index:        1→Page1         5→Page2          9→Page3
+
+Pros: Smaller index
+Cons: Must scan within page after finding block
+Use: When records are sorted (clustered index)
+```
+
+### Tree-Based Indexing
+
+**B+ Tree Index** (most common in RDBMS):
+```
+                [30 | 60]              ← Root (routing)
+              /     |     \
+          [10|20] [40|50] [70|80]     ← Internal (routing)
+         /   |      |      |   \
+       [...]  [...] [...]  [...] [...]  ← Leaves (actual data pointers, linked)
+
+Leaf nodes are linked → efficient range scans
+```
+
+```java
+// MySQL InnoDB: every table has a clustered B+ Tree index on primary key
+// Secondary indexes store (secondary_key → primary_key) pairs
+
+// PostgreSQL: default index type is B-Tree
+// CREATE INDEX idx_symbol ON trades(symbol);  → B+ Tree
+// CREATE INDEX idx_ts ON trades(timestamp);   → B+ Tree, range-friendly
+
+// Hash Index (for exact lookups only):
+// CREATE INDEX idx_id ON trades USING HASH (trade_id);
+// O(1) lookup, but NO range queries supported
+```
+
+**Composite Index & Selectivity**:
+```sql
+-- Index on (symbol, timestamp) supports:
+-- WHERE symbol = 'EURUSD'                    ✅ (leftmost prefix)
+-- WHERE symbol = 'EURUSD' AND timestamp > t  ✅ (both columns)
+-- WHERE timestamp > t                        ❌ (not leftmost prefix)
+
+-- High selectivity = good index candidate
+-- Low selectivity (e.g., boolean) = index rarely helps
+```
+
+### Covering Index
+```sql
+-- A covering index contains ALL columns needed by the query
+-- → No need to access the actual table rows ("index-only scan")
+CREATE INDEX idx_cover ON trades(symbol, timestamp, price);
+SELECT timestamp, price FROM trades WHERE symbol = 'EURUSD';
+-- ↑ Answered entirely from index — no table access needed
+```
+
+### Real-World Application (kACE)
+```java
+// kACE screen layout DB schema — index design
+// Table: screen_layouts(screen_id, class_id, user_id, priority, config)
+
+// Query: find layout for screen X with best priority
+// SELECT * FROM screen_layouts 
+//   WHERE screen_id = ? ORDER BY priority ASC LIMIT 1
+
+// Optimal index: CREATE INDEX idx_layout ON screen_layouts(screen_id, priority)
+// → B+ Tree: O(log n) to find screen_id, scan leaves for min priority
+```
+
+### Index Trade-offs
+| | B+ Tree Index | Hash Index |
+|--|--------------|------------|
+| Exact lookup | O(log n) | O(1) |
+| Range query | O(log n + k) | ❌ Not supported |
+| Order by | ✅ (already sorted) | ❌ |
+| Space | Moderate | Low |
+| Write overhead | Moderate | Low |
