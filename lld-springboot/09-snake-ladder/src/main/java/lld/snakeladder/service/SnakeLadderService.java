@@ -13,7 +13,8 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 import java.util.stream.Collectors;
 
-@Service @RequiredArgsConstructor
+@Service 
+@RequiredArgsConstructor
 public class SnakeLadderService {
     private static final Logger log = LoggerFactory.getLogger(SnakeLadderService.class);
     private final GameRepository gameRepo;
@@ -45,12 +46,13 @@ public class SnakeLadderService {
         int dice = rng.nextInt(6) + 1;
         int from = current.getPosition();
         int to   = Math.min(from + dice, game.getBoardSize());
+        final int to2 = to;
         current.setTurnsPlayed(current.getTurnsPlayed() + 1);
         game.setTotalTurns(game.getTotalTurns() + 1);
         log.info("[SnakeLadderService] Turn | player={} dice={} from={} to={}", current.getPlayerName(), dice, from, to);
 
         String event = "Moved to " + to;
-        BoardCell cell = game.getCells().stream().filter(c -> c.getPosition() == to).findFirst().orElse(null);
+        BoardCell cell = game.getCells().stream().filter(c -> c.getPosition() == to2).findFirst().orElse(null);
         if (cell != null) {
             if (cell.getType() == CellType.SNAKE_HEAD) {
                 to = cell.getTargetPosition(); current.setSnakeBites(current.getSnakeBites()+1);
@@ -90,7 +92,7 @@ public class SnakeLadderService {
         game.setCells(cells);
     }
 
-    private Game getGame(Long id) { return gameRepo.findById(id).orElseThrow(() -> new GameException("Game not found: " + id, HttpStatus.NOT_FOUND)); }
+    public Game getGame(Long id) { return gameRepo.findById(id).orElseThrow(() -> new GameException("Game not found: " + id, HttpStatus.NOT_FOUND)); }
 }
 // expose getGame for controller
-public Game getGame(Long id) { return gameRepo.findById(id).orElseThrow(() -> new GameException("Game not found: " + id, HttpStatus.NOT_FOUND)); }
+// public Game getGame(Long id) { return gameRepo.findById(id).orElseThrow(() -> new GameException("Game not found: " + id, HttpStatus.NOT_FOUND)); }
