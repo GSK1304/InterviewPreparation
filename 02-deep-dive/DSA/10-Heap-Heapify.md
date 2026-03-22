@@ -188,6 +188,9 @@ rfqQueue.offer(new RFQ("GBP/USD", 50_000_000, NORMAL));
 RFQ next = rfqQueue.poll(); // processes URGENT first
 ```
 **Where it applies**: kACE RFQ system — priority-based processing of incoming option requests.
+> 🏭 **Industry Example**: Uber's dispatch system uses a priority queue to assign drivers — highest-rated available driver gets first pick. Google's task scheduler (Borg/Kubernetes) uses priority queues to schedule pods by QoS class. AWS SQS FIFO with message priorities uses the same concept.
+> 🏦 **kACE Context**: kACE RFQ system — urgent/high-notional RFQs processed before standard requests.
+
 
 ---
 
@@ -206,6 +209,9 @@ for (Partition p : allPartitions) {
 // minHeap = top K lagging partitions
 ```
 **Where it applies**: Kafka consumer lag monitoring dashboard in kACE.
+> 🏭 **Industry Example**: LinkedIn's Kafka monitoring uses min-heap Top-K to surface the most lagging consumer groups for alerting. Confluent Cloud's lag monitoring dashboard uses the same approach. Netflix's Keystone pipeline uses heap-based Top-K for partition health scoring.
+> 🏦 **kACE Context**: Kafka consumer lag monitoring — alerting on the K most backlogged partitions in the kACE event pipeline.
+
 
 ---
 
@@ -229,6 +235,9 @@ while (!pq.isEmpty()) {
 }
 ```
 **Where it applies**: Merging logs from kACE microservices (gateway, pricing, RFQ, auth), Jenkins build logs.
+> 🏭 **Industry Example**: Elasticsearch's index merging uses K-way merge with a min-heap to merge sorted segment files. Google's MapReduce output merge phase uses K-way merge. Apache Spark's sort-based shuffle uses heap-based K-way merge for final aggregation.
+> 🏦 **kACE Context**: Merging chronological logs from kACE microservices (gateway, pricing, RFQ, auth) into a unified audit trail.
+
 
 ---
 
@@ -250,6 +259,9 @@ for (int i = 0; i < rates.length; i++) {
 }
 ```
 **Where it applies**: FX option volatility computation, real-time spread monitoring in kACE.
+> 🏭 **Industry Example**: Bloomberg's volatility surface computation uses sliding window medians. TradingView's median indicator uses two-heap approach for real-time chart updates. High-frequency trading firms use this to detect abnormal price movements.
+> 🏦 **kACE Context**: FX option volatility computation — real-time spread monitoring using median of rolling tick data.
+
 
 ---
 
@@ -274,6 +286,9 @@ while (pq.size() > 1) {
 HuffNode root = pq.poll(); // Huffman tree root
 ```
 **Where it applies**: Compressing Kafka message payloads, WebSocket frame compression.
+> 🏭 **Industry Example**: PNG/ZIP/GZIP file compression uses Huffman encoding (greedy min-heap). HTTP/2 uses HPACK (Huffman-based header compression) to reduce bandwidth. Protobuf's varint encoding uses a similar variable-length approach.
+> 🏦 **kACE Context**: Compressing Kafka message payloads and WebSocket frame compression for reduced bandwidth.
+
 
 ---
 

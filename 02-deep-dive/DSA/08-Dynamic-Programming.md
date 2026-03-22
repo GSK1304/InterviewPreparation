@@ -136,6 +136,9 @@ for (int i = steps - 1; i >= 0; i--)
 return dp[0]; // option price today
 ```
 **Where it applies**: FX European option pricing engine in kACE Phoenix — binomial/trinomial models.
+> 🏭 **Industry Example**: Black-Scholes option pricing (used by Goldman Sachs, JP Morgan) is a continuous version of binomial DP. The binomial tree model is taught in every quantitative finance program and used in production by trading desks worldwide. Bloomberg Terminal's OVME function uses binomial trees for exotic option pricing.
+> 🏦 **kACE Context**: FX European option pricing engine — binomial/trinomial backward induction models.
+
 
 ---
 
@@ -156,6 +159,9 @@ for (int i = 1; i <= features.length; i++) {
 return dp[features.length][capacity];
 ```
 **Where it applies**: Sprint capacity planning, feature prioritization for kACE roadmap.
+> 🏭 **Industry Example**: Google uses 0/1 knapsack variants for server bin-packing (maximizing workload per machine). Uber uses it for driver-trip matching optimization. Airlines use it for crew scheduling to maximize coverage within hour constraints.
+> 🏦 **kACE Context**: Sprint capacity planning — maximizing business value delivered within the team's story point budget.
+
 
 ---
 
@@ -176,6 +182,9 @@ for (int i = 1; i <= m; i++) {
 return dp[m][n];
 ```
 **Where it applies**: Config diff tools, JIRA ticket description similarity, layout config migration.
+> 🏭 **Industry Example**: Git's `diff` algorithm uses edit distance (Myers diff algorithm, a variant). GitHub's PR review shows minimum edit distance between file versions. VS Code's merge conflict resolution uses edit distance to suggest resolutions.
+> 🏦 **kACE Context**: kACE layout config versioning — detecting minimal changes between screen config versions.
+
 
 ---
 
@@ -195,6 +204,9 @@ for (int k = 1; k <= K; k++) {
 return dp[K][prices.length - 1];
 ```
 **Where it applies**: FX trade window optimization, P&L maximization across multiple option legs.
+> 🏭 **Industry Example**: Hedge funds use DP-based models to find optimal trade entry/exit windows. Renaissance Technologies' Medallion Fund reportedly uses DP variants for multi-transaction profit maximization. Algorithmic trading systems at Two Sigma use similar patterns.
+> 🏦 **kACE Context**: FX trade window optimization — maximizing P&L across multiple option strategy legs.
+
 
 ---
 
@@ -216,6 +228,9 @@ for (int i = 1; i <= s.length(); i++) {
 return dp[s.length()];
 ```
 **Where it applies**: FX symbol parsing (EURUSD → EUR + USD), trade ticket validation.
+> 🏭 **Industry Example**: Google's spell checker uses word break DP to segment unknown strings. NLP systems segment Chinese/Japanese text (no word spaces) using word break DP. DNS resolver uses it to parse domain component boundaries.
+> 🏦 **kACE Context**: FX symbol parsing — segmenting 'EURUSDGBP' into valid currency pair combinations.
+
 
 ---
 

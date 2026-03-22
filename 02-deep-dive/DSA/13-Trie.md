@@ -155,6 +155,9 @@ List<String> suggestions = symbolTrie.autocomplete("EUR");
 // Returns: ["EURUSD", "EURGBP", "EURJPY"]
 ```
 **Where it applies**: kACE trading UI symbol search, dropdown autocomplete for currency pairs.
+> 🏭 **Industry Example**: Google Search's autocomplete uses a Trie (with ranking weights) to suggest queries as you type. GitHub's file finder (press 'T') uses Trie-based fuzzy matching. VS Code's IntelliSense uses Trie for method/variable name completion.
+> 🏦 **kACE Context**: kACE trading UI symbol search — autocompleting FX currency pairs as traders type (e.g., "EUR" → EURUSD, EURGBP, EURJPY).
+
 
 ---
 
@@ -170,6 +173,9 @@ boolean isValidPrefix = commandTrie.startsWith("sta"); // true → "start", "sta
 List<String> matches = commandTrie.autocomplete("sta"); // ["start", "stats"]
 ```
 **Where it applies**: Node.js monitoring proxy CLI, Jenkins build command completion.
+> 🏭 **Industry Example**: Linux shell tab-completion uses Trie for command suggestions. Redis CLI uses Trie-based command completion. AWS CLI uses prefix matching for command and subcommand suggestions.
+> 🏦 **kACE Context**: Node.js monitoring proxy CLI — matching partial commands like "sta" to "start", "stats", "status".
+
 
 ---
 
@@ -193,6 +199,9 @@ class IPTrie {
 }
 ```
 **Where it applies**: Network routing in kACE infrastructure, API Gateway route matching.
+> 🏭 **Industry Example**: Every internet router uses a radix/Patricia trie for IP routing — longest prefix match is fundamental to BGP routing. Cloudflare's network uses binary tries for firewall rule matching. AWS VPC routing tables use prefix matching for traffic routing.
+> 🏦 **kACE Context**: API Gateway route matching — routing `/api/rfq/*` to RFQ service using longest-prefix trie traversal.
+
 
 ---
 
@@ -207,6 +216,9 @@ for (String log : logs) logTrie.insert(log);
 List<String> errorLogs = logTrie.autocomplete("ERROR: Connection");
 ```
 **Where it applies**: kACE log monitoring, Kafka consumer error pattern detection.
+> 🏭 **Industry Example**: Splunk uses Trie-based pattern matching to group similar log messages (log clustering). Elasticsearch's tokenizer uses prefix tries for fast term lookup. Datadog's log anomaly detection uses Trie structures to identify new log patterns.
+> 🏦 **kACE Context**: kACE log monitoring — fast detection of error prefixes like "ERROR: Connection" across Kafka consumer logs.
+
 
 ---
 
@@ -230,6 +242,9 @@ int findMaximumXOR(int[] nums) {
 }
 ```
 **Where it applies**: JWT token XOR validation patterns, hash collision detection.
+> 🏭 **Industry Example**: Cryptographic systems use XOR-based Trie structures for fast key lookups. Networking protocols use XOR tries (as in Kademlia DHT — used by BitTorrent) for peer discovery. Consistent hashing implementations use XOR distance metrics.
+> 🏦 **kACE Context**: JWT token XOR validation patterns and hash collision detection in kACE's auth layer.
+
 
 ---
 

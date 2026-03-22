@@ -300,6 +300,9 @@ st.update(todayIdx, newRate);
 int minRate = st.query(todayIdx - 30, todayIdx);
 ```
 **Where it applies**: kACE FX rate range analytics, option pricing historical volatility windows.
+> 🏭 **Industry Example**: Codeforces and competitive programming judges use Segment Trees for range query problems. TradingView's chart engine uses Segment Trees for efficient OHLC (Open-High-Low-Close) range queries over time windows. Bloomberg Terminal's analytics use range query structures for yield curve analysis.
+> 🏦 **kACE Context**: kACE FX rate range analytics — O(log n) range min/max queries over historical rate windows with live updates.
+
 
 ---
 
@@ -316,6 +319,9 @@ int count = bit.query(targetPrice);
 int rangeCount = bit.rangeQuery(lo, hi);
 ```
 **Where it applies**: FX option order book analytics, cumulative volume at price levels.
+> 🏭 **Industry Example**: NASDAQ's order book uses BIT-like prefix sum structures for cumulative volume at price levels. Binance's order book depth chart uses prefix sums to show cumulative volume. Interactive Brokers' TWS uses similar structures for order flow analysis.
+> 🏦 **kACE Context**: FX option order book analytics — cumulative order counts by price level with O(log n) updates.
+
 
 ---
 
@@ -329,6 +335,9 @@ System.out.println("Missing trade IDs: " + missingIds);
 // Alert operations team for reconciliation
 ```
 **Where it applies**: Trade reconciliation, Kafka message sequence gap detection in kACE.
+> 🏭 **Industry Example**: Stock exchange reconciliation systems detect missing trade IDs in daily settlement batches. Visa/Mastercard transaction reconciliation identifies gaps in sequential transaction numbers. Bank end-of-day processing validates that no transaction IDs are missing in a sequence.
+> 🏦 **kACE Context**: Trade reconciliation — detecting gaps in sequential kACE trade ID sequences for audit compliance.
+
 
 ---
 
@@ -342,6 +351,9 @@ if (dominantTrader != -1)
     System.out.println("Dominant trader: " + dominantTrader);
 ```
 **Where it applies**: kACE RFQ analysis, market maker activity monitoring, suspicious trading detection.
+> 🏭 **Industry Example**: Twitter uses Boyer-Moore voting to find trending topics that appear in more than 50% of recent tweets. Facebook uses it to detect dominant reactions on viral posts. Reddit uses a variant to find the majority-upvoted comment in a thread.
+> 🏦 **kACE Context**: kACE RFQ analysis — finding the market maker responsible for the majority of RFQ activity in a session.
+
 
 ---
 
@@ -355,6 +367,9 @@ int[] sampleTrades = reservoirSample(tradeStream.iterator(), 1000);
 runLoadTest(sampleTrades);
 ```
 **Where it applies**: kACE performance testing, A/B testing trade sample selection, audit sampling.
+> 🏭 **Industry Example**: Netflix uses reservoir sampling to sample 1000 representative user sessions from millions for A/B test analysis. Google Analytics uses it for sampled reporting at scale. Twitter's streaming API uses reservoir sampling to provide a statistically representative 1% sample of all tweets.
+> 🏦 **kACE Context**: kACE performance testing — randomly sampling representative trades from millions for load test scenarios.
+
 
 ---
 

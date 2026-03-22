@@ -247,6 +247,9 @@ int[] minLatency = dijkstra(kACEHub, venues.size(), networkGraph);
 System.out.println("Min latency to Tokyo: " + minLatency[TOKYO] + "ms");
 ```
 **Where it applies**: FX trade routing optimization, API Gateway latency-based routing.
+> 🏭 **Industry Example**: Google Maps uses a variant of Dijkstra (A* with geographic heuristic) for driving directions. Uber and Lyft use Dijkstra on road networks to find optimal driver routes. Network routers use OSPF (Open Shortest Path First), which is Dijkstra on network topology.
+> 🏦 **kACE Context**: FX trade routing optimization — finding minimum latency path between trading venues in the kACE network.
+
 
 ---
 
@@ -260,6 +263,9 @@ for (List<Integer> scc : sccs)
     if (scc.size() > 1) System.out.println("Tight coupling: " + scc);
 ```
 **Where it applies**: kACE microservice architecture review, Spring Boot dependency analysis.
+> 🏭 **Industry Example**: Twitter's SCC analysis revealed tightly coupled service clusters that became refactoring candidates. Netflix's Chaos Engineering team uses SCC to identify services that will cascade-fail together. LinkedIn uses SCC on their service dependency graph for deployment safety analysis.
+> 🏦 **kACE Context**: kACE microservice architecture review — identifying tightly coupled service clusters for modularization.
+
 
 ---
 
@@ -273,6 +279,9 @@ System.out.println("Critical nodes (APs): " + articulationPoints);
 // → Plan redundancy for these
 ```
 **Where it applies**: kACE infrastructure resilience planning, Kafka broker single-point-of-failure detection.
+> 🏭 **Industry Example**: AWS's network topology analysis uses bridge detection to identify single-link failure risks. Facebook's data center network team uses articulation point analysis to find network devices whose failure would partition the datacenter. Cloudflare uses bridge analysis to ensure no single PoP disconnect isolates a region.
+> 🏦 **kACE Context**: kACE infrastructure resilience planning — finding network links whose failure would split the trading platform.
+
 
 ---
 
@@ -285,6 +294,9 @@ int minCost = kruskal(offices.size(), possibleConnections);
 System.out.println("Minimum infrastructure cost: $" + minCost);
 ```
 **Where it applies**: Network infrastructure planning, Kafka broker cluster topology optimization.
+> 🏭 **Industry Example**: Google uses Kruskal's MST algorithm to design undersea fiber cable networks (minimize total cable length connecting data centers). AWS infrastructure uses MST for VPC peering topology optimization. Telecommunications companies use MST for optimal tower placement networks.
+> 🏦 **kACE Context**: Connecting kACE office locations with minimum total network infrastructure cost.
+
 
 ---
 
@@ -297,6 +309,9 @@ int[][] latencyMatrix = floydWarshall(directLatencies, services.size());
 int minLatency = latencyMatrix[AUTH][PRICING];
 ```
 **Where it applies**: kACE service mesh latency optimization, API Gateway routing table precomputation.
+> 🏭 **Industry Example**: Cloudflare Argo precomputes all-pairs latency between PoPs using Floyd-Warshall for routing tables. AWS Global Accelerator uses precomputed latency matrices. Akamai CDN routing uses all-pairs precomputation for optimal edge selection.
+> 🏦 **kACE Context**: kACE service mesh — precomputing minimum latency between all microservice pairs for API Gateway routing.
+
 
 ---
 

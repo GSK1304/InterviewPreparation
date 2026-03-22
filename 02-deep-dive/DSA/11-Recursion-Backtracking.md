@@ -180,6 +180,9 @@ void backtrack(List<OptionLeg> legs, int start, int k,
 }
 ```
 **Where it applies**: kACE pricing — generating valid multi-leg option strategy combinations (straddle, strangle, butterfly, condor).
+> 🏭 **Industry Example**: Bloomberg's strategy builder uses combination generation to show all valid multi-leg option combinations. Thinkorswim (TD Ameritrade) generates strategy suggestions using subset enumeration. Portfolio optimizers at hedge funds enumerate strategy combinations to find optimal risk-adjusted returns.
+> 🏦 **kACE Context**: kACE pricing — generating valid multi-leg combinations (straddle, strangle, butterfly, condor) from available legs.
+
 
 ---
 
@@ -194,6 +197,9 @@ void generateRoles(List<String> permissions, List<String> mandatory) {
 // Each valid subset = a possible role configuration
 ```
 **Where it applies**: kACE JWT privileges system — role/permission combination generation for new user types.
+> 🏭 **Industry Example**: AWS IAM uses constraint satisfaction for permission set generation — ensuring no two conflicting policies are assigned. Okta's role management generates valid permission subsets for RBAC. Google Cloud IAM uses subset enumeration to validate permission combinations.
+> 🏦 **kACE Context**: kACE JWT privileges system — generating valid role/permission combinations for new user types.
+
 
 ---
 
@@ -209,6 +215,9 @@ void generateJoinOrders(List<String> tables) {
 // Then evaluate cost of each order, pick minimum
 ```
 **Where it applies**: Database query optimization in PostgreSQL/DB2 used by kACE backend.
+> 🏭 **Industry Example**: PostgreSQL's query planner uses backtracking to enumerate and cost all possible join orders. MySQL's optimizer generates permutations of table join sequences. Oracle's query optimizer uses branch-and-bound (backtracking variant) to find the optimal execution plan.
+> 🏦 **kACE Context**: Database query optimization for kACE's PostgreSQL/DB2 — finding optimal join order for multi-table layout config queries.
+
 
 ---
 
@@ -231,6 +240,9 @@ boolean assignServices(int[] assignment, int serviceIdx,
 }
 ```
 **Where it applies**: Kubernetes pod anti-affinity assignment, microservice placement in kACE infra.
+> 🏭 **Industry Example**: Kubernetes pod scheduling uses constraint satisfaction (CSP with backtracking) to satisfy affinity/anti-affinity rules. Google's Borg scheduler uses backtracking to assign jobs to machines respecting resource constraints.
+> 🏦 **kACE Context**: Kubernetes pod anti-affinity assignment for kACE microservice placement across nodes.
+
 
 ---
 
@@ -256,6 +268,9 @@ void backtrack(String s, int start, List<String> current, List<List<String>> res
 }
 ```
 **Where it applies**: String validation in FX symbol parsing, message format decomposition.
+> 🏭 **Industry Example**: Natural language processing uses palindrome partitioning to segment ambiguous tokenizations. DNA sequence analysis uses it to identify restriction enzyme palindrome recognition sequences. Google's search query tokenization uses similar partitioning techniques.
+> 🏦 **kACE Context**: String validation in FX symbol parsing — decomposing composite currency identifiers into valid palindromic sub-patterns.
+
 
 ---
 

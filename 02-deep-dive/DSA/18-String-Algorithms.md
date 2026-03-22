@@ -275,6 +275,9 @@ List<Integer> timeouts = kmpSearch(tradeMessageStream, "TIMEOUT");
 // Far faster than regex for known fixed patterns
 ```
 **Where it applies**: Kafka consumer message filtering, WebSocket STOMP frame parsing in kACE.
+> 🏭 **Industry Example**: Elasticsearch uses KMP-variant for exact phrase matching in full-text search. Antivirus software (ClamAV) uses KMP to scan file streams for malware signatures. Linux `grep` uses optimized string matching (BM/KMP hybrid) for fast text search.
+> 🏦 **kACE Context**: kACE Kafka consumer message filtering — fast scanning for "REJECT"/"TIMEOUT" patterns in high-volume trade message streams.
+
 
 ---
 
@@ -291,6 +294,9 @@ for (int i = 0; i <= lines.size() - K; i++) {
 // Lines with same hash = potential duplicates → verify
 ```
 **Where it applies**: GitLab CI duplicate code detection, kACE codebase quality checks.
+> 🏭 **Industry Example**: GitHub's code search uses rolling hash for duplicate detection. Stack Overflow's plagiarism detection uses Rabin-Karp for finding copied code answers. SonarQube's code duplication detection uses rolling hash to find duplicated code blocks across files.
+> 🏦 **kACE Context**: GitLab CI duplicate code detection in the kACE codebase quality checks.
+
 
 ---
 
@@ -303,6 +309,9 @@ String longestPalinPattern = manacher(fxRateSequence);
 // Also: find ALL palindromes of each length efficiently
 ```
 **Where it applies**: FX rate pattern recognition, symmetric option strategy detection.
+> 🏭 **Industry Example**: Bioinformatics uses Manacher's to find palindromic DNA sequences for restriction enzyme sites. Competitive programming platforms (Codeforces, LeetCode) feature it as a landmark algorithm problem. Text editors use Manacher's for efficient palindrome highlighting.
+> 🏦 **kACE Context**: FX rate pattern recognition — finding symmetric patterns in currency pair price sequences.
+
 
 ---
 
@@ -317,6 +326,9 @@ int[] z = zFunction(combined);
 int commonPrefixLen = z[template.length() + 1]; // how much matches
 ```
 **Where it applies**: kACE log aggregation — grouping similar errors, Kibana log pattern detection.
+> 🏭 **Industry Example**: Splunk's log clustering algorithm uses Z-function for prefix-based log grouping. Kibana's log pattern analysis uses prefix matching to group similar error messages. Linux `journald` uses prefix matching to deduplicate repeated log lines.
+> 🏦 **kACE Context**: kACE log aggregation — grouping similar error messages to reduce alert noise.
+
 
 ---
 
@@ -336,6 +348,9 @@ while (lo < hi) {
 int firstDiff = lo; // first position where configs diverge
 ```
 **Where it applies**: kACE layout config versioning, Spring Boot property file diff detection.
+> 🏭 **Industry Example**: Git uses SHA-1/SHA-256 content hashing to detect file changes in O(1) — the same principle as string hashing. React's reconciliation uses content hashing to detect prop changes. Docker uses content-addressable storage (SHA-256 hash of layers) for deduplication.
+> 🏦 **kACE Context**: kACE layout config versioning — O(1) comparison of config sections using string hashing to detect diffs.
+
 
 ---
 

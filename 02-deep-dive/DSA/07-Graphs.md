@@ -145,6 +145,9 @@ List<Integer> startupOrder = topSort(services.size(), dependencyGraph);
 if (startupOrder.isEmpty()) throw new CircularDependencyException();
 ```
 **Where it applies**: Spring Boot microservice startup ordering, Gradle/Maven build dependency resolution, kace-common-library dependency graph.
+> 🏭 **Industry Example**: Netflix uses topological sort on their microservice dependency graph to determine safe deployment order. Kubernetes uses DAG-based dependency resolution for pod startup ordering. npm/yarn use Kahn's algorithm to install packages in dependency order.
+> 🏦 **kACE Context**: kACE microservice startup ordering — ensuring auth service starts before pricing service, pricing before RFQ.
+
 
 ---
 
@@ -172,6 +175,9 @@ int shortestPath(Map<String, List<String>> mesh, String src, String dst) {
 }
 ```
 **Where it applies**: API Gateway routing, service mesh latency optimization, Kafka broker topology.
+> 🏭 **Industry Example**: Facebook's network infrastructure team uses BFS to find shortest paths between data centers. Cloudflare's Argo Smart Routing uses BFS on their network graph to route traffic through the fastest path. AWS VPC routing uses shortest-path algorithms.
+> 🏦 **kACE Context**: API Gateway routing — finding minimum-latency path between kACE microservices.
+
 
 ---
 
@@ -190,6 +196,9 @@ for (int i = 0; i < sessions.length; i++) {
 }
 ```
 **Where it applies**: kACE WebSocket subscription tracking (`SubscriptionRegistry`), RFQ session grouping.
+> 🏭 **Industry Example**: Discord uses connected component detection to identify isolated server clusters during outages. Slack uses Union-Find to group users who share workspace subscriptions for targeted message delivery.
+> 🏦 **kACE Context**: `SubscriptionRegistry` — grouping WebSocket sessions by shared RFQ topic subscriptions.
+
 
 ---
 
@@ -209,6 +218,9 @@ for (int i = 0; i < n; i++) roots.add(uf.find(i));
 int partitions = roots.size();
 ```
 **Where it applies**: Kafka broker partition assignment, network split detection, DR failover grouping.
+> 🏭 **Industry Example**: Zookeeper uses Union-Find concepts to detect quorum loss in distributed clusters. Cassandra's gossip protocol detects network partitions using a similar connected-components approach. Kubernetes node controller uses this to detect split-brain scenarios.
+> 🏦 **kACE Context**: Kafka broker partition assignment and detecting split-brain between kACE service instances.
+
 
 ---
 
@@ -228,6 +240,9 @@ if (releaseOrder.isEmpty()) {
 }
 ```
 **Where it applies**: Sprint planning — ordering features with dependencies, CI/CD pipeline stage ordering, Jenkins downstream triggers.
+> 🏭 **Industry Example**: Jenkins CI/CD pipeline uses topological sort to order build stages. GitHub Actions uses DAG-based workflow execution. Airflow uses topological sort for DAG task scheduling.
+> 🏦 **kACE Context**: Sprint planning — ordering kACE feature releases respecting inter-feature dependencies.
+
 
 ---
 

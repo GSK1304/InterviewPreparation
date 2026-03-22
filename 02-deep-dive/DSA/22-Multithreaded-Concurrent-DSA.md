@@ -266,6 +266,9 @@ workers.submit(() -> {
 });
 ```
 **Where it applies**: kACE Kafka consumer pipeline — parallel RFQ event processing.
+> 🏭 **Industry Example**: Netflix's Hystrix (circuit breaker library) uses `LinkedBlockingQueue` + thread pool for bounded concurrent execution. Twitter's Finagle uses similar bounded queues for request isolation. Apache Kafka's consumer itself uses `LinkedBlockingQueue` internally for its fetch pipeline.
+> 🏦 **kACE Context**: kACE Kafka consumer pipeline — parallel RFQ event processing using `LinkedBlockingQueue` + `ExecutorService` worker pool.
+
 
 ---
 
@@ -285,6 +288,9 @@ public class DropdownCache {
 }
 ```
 **Where it applies**: kACE `StaticCacheOrchestrator` — thread-safe pre-load across Spring request threads.
+> 🏭 **Industry Example**: Spring Framework's `@Cacheable` uses `ConcurrentHashMap` internally for thread-safe method-level caching. Guava's `LoadingCache` uses `ConcurrentHashMap` with `computeIfAbsent` for concurrent cache loading. Netflix's EVCache uses ConcurrentHashMap for in-memory L1 cache.
+> 🏦 **kACE Context**: kACE `StaticCacheOrchestrator` — `ConcurrentHashMap.computeIfAbsent()` for thread-safe dropdown pre-loading across Spring request threads.
+
 
 ---
 
@@ -307,6 +313,9 @@ void broadcast(String topic, String message) {
 }
 ```
 **Where it applies**: kACE `SubscriptionRegistry` — concurrent WebSocket session management.
+> 🏭 **Industry Example**: Slack's real-time messaging uses `ConcurrentHashMap<channelId, CopyOnWriteArraySet<session>>` for thread-safe session management. Discord's gateway uses concurrent maps for voice channel session tracking. Twitch's chat system uses concurrent maps for viewer session routing.
+> 🏦 **kACE Context**: kACE `SubscriptionRegistry` — `ConcurrentHashMap.newKeySet()` for thread-safe WebSocket topic-to-session mapping.
+
 
 ---
 
@@ -326,6 +335,9 @@ if (count > MAX_CONCURRENT_RFQS) {
 activeRfqCount.decrementAndGet();
 ```
 **Where it applies**: kACE RFQ rate limiting — concurrent RFQ count without locks.
+> 🏭 **Industry Example**: AWS API Gateway uses `AtomicInteger` / `AtomicLong` for per-region request counters without locks. NGINX uses atomic counters for connection tracking. Netty (used by Kafka, Elasticsearch) uses atomic counters for active channel tracking.
+> 🏦 **kACE Context**: kACE RFQ rate limiting — `AtomicInteger.incrementAndGet()` for lock-free concurrent RFQ count tracking.
+
 
 ---
 
@@ -350,6 +362,9 @@ void updateLayout(String screenId, LayoutConfig config) {
 }
 ```
 **Where it applies**: kACE `useMergedLayout` — read-heavy layout config with occasional DB refresh.
+> 🏭 **Industry Example**: Elasticsearch's cluster state management uses `ReentrantReadWriteLock` — many nodes read cluster state, only the master writes it. Spring's `@Cacheable` at cluster level uses read-write locks for cache population. ZooKeeper's data node access uses read-write locking semantics.
+> 🏦 **kACE Context**: kACE `useMergedLayout` — read-write lock for layout config cache with hundreds of concurrent read requests and rare DB refresh writes.
+
 
 ---
 

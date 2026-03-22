@@ -158,6 +158,9 @@ for (Trade t : trades) {
 }
 ```
 **Where it applies**: FX option trade scheduling, expiry ladder optimization in kACE.
+> 🏭 **Industry Example**: Google Calendar's meeting scheduler uses interval scheduling (sort by end time) to maximize bookable slots. Airbnb's property availability system uses activity selection to maximize booking density. AWS EC2 spot instance scheduling uses interval scheduling for workload placement.
+> 🏦 **kACE Context**: FX option trade scheduling — maximizing non-overlapping trade windows within market hours.
+
 
 ---
 
@@ -171,6 +174,9 @@ int minRooms = minMeetingRooms(meetings);
 System.out.println("Need " + minRooms + " conference rooms for kACE team");
 ```
 **Where it applies**: Team scheduling in kACE management portal, interview slot allocation.
+> 🏭 **Industry Example**: Zoom/Google Meet room booking systems use meeting rooms II algorithm for office hot-desking. Calendly uses min-heap of end times to find earliest available slot. Microsoft Bookings uses the same greedy approach for resource scheduling.
+> 🏦 **kACE Context**: kACE team scheduling — minimizing conference rooms needed for sprint ceremonies.
+
 
 ---
 
@@ -189,6 +195,9 @@ for (Topic topic : topics) {
 }
 ```
 **Where it applies**: Kafka broker load balancing, kACE microservice resource allocation.
+> 🏭 **Industry Example**: Kafka's partition assignment strategy (StickyAssignor) uses greedy load balancing to evenly distribute partitions across consumers. Elasticsearch uses a greedy bin-packing approach to distribute index shards across nodes. HDFS's block placement policy uses greedy rack-aware balancing.
+> 🏦 **kACE Context**: Kafka broker load balancing for the kACE event streaming pipeline.
+
 
 ---
 
@@ -202,6 +211,9 @@ boolean canReleaseAll = canJump(featureUnlocks);
 int minReleases = jump(featureUnlocks);
 ```
 **Where it applies**: Feature flag release planning, CI/CD pipeline stage progression in kACE.
+> 🏭 **Industry Example**: GitHub Actions uses greedy traversal of workflow DAGs — each step "unlocks" subsequent steps. Jenkins pipeline stages use the same reachability logic. Feature flags systems (LaunchDarkly) use dependency graphs to determine which flags can be enabled.
+> 🏦 **kACE Context**: kACE feature flag release planning — determining if all downstream features can be reached from a given release.
+
 
 ---
 
@@ -215,6 +227,9 @@ List<Integer> partitions = partitionLabels(logServiceIds);
 // Each partition can be processed independently
 ```
 **Where it applies**: Log partitioning for parallel processing, Kafka topic partitioning strategy.
+> 🏭 **Industry Example**: Elasticsearch's index routing uses partition labels to co-locate related documents. AWS CloudWatch Logs uses log group partitioning for parallel processing. Splunk's data pipeline partitions log streams by source for independent indexing.
+> 🏦 **kACE Context**: kACE log partitioning — grouping microservice logs by service name for parallel Elasticsearch indexing.
+
 
 ---
 
