@@ -137,6 +137,9 @@ void printOrgChart(Employee root) {
 }
 ```
 **Where it applies**: kACE team management portal — hierarchy display, leave approval chain.
+> 🏭 **Industry Example**: GitHub uses BFS on repository fork trees to show fork networks. LinkedIn's company hierarchy feature uses level-order traversal. Google's organizational directory uses BFS for "reports to" chain display.
+> 🏦 **kACE Context**: kACE team management portal — displaying 12-member team hierarchy and leave approval chains.
+
 
 ---
 
@@ -155,6 +158,9 @@ long computeSize(FileNode node) {
 }
 ```
 **Where it applies**: kACE layout config system — `useMergedLayout` hierarchical config resolution.
+> 🏭 **Industry Example**: Linux `du -sh` uses postorder DFS to compute directory sizes bottom-up. macOS Finder calculates folder sizes the same way. Git's tree objects (blob → tree → commit) use the same hierarchical structure.
+> 🏦 **kACE Context**: kACE layout config system — `useMergedLayout` resolves nested screen config hierarchies bottom-up.
+
 
 ---
 
@@ -173,6 +179,9 @@ NavigableMap<Double, Integer> range =
     orderBook.subMap(1.2300, true, 1.2350, true); // range O(log n)
 ```
 **Where it applies**: FX Options order book management, spread monitoring in kACE.
+> 🏭 **Industry Example**: NASDAQ and NYSE matching engines use Red-Black Trees (BST variant) for order books — O(log n) best bid/ask lookup. Java's `TreeMap` (used in many financial systems) is a Red-Black Tree. LMAX Disruptor uses sorted structures for high-frequency trading.
+> 🏦 **kACE Context**: FX Options order book management — sorted by strike price for spread monitoring.
+
 
 ---
 
@@ -197,6 +206,9 @@ TreeNode deserialize(Queue<String> nodes) {
 }
 ```
 **Where it applies**: kACE screen layout serialization to DB, config tree persistence.
+> 🏭 **Industry Example**: JSON (used by REST APIs everywhere) is a serialized tree. XML DOM (used by SOAP/enterprise systems) is a tree. React's Virtual DOM is a serialized component tree diffed on each render.
+> 🏦 **kACE Context**: kACE screen layout serialization to PostgreSQL — config trees persisted as JSON.
+
 
 ---
 
@@ -228,6 +240,9 @@ void dfs(TreeNode node, int remain, List<Integer> path, List<List<Integer>> resu
 }
 ```
 **Where it applies**: FX option strategy P&L path analysis, decision tree traversal.
+> 🏭 **Industry Example**: Game engines (Unity, Unreal) use path-sum on behavior trees to find valid action sequences. AWS Cost Explorer uses tree path sums to aggregate costs from service → region → account.
+> 🏦 **kACE Context**: FX option strategy P&L path analysis — finding all pricing paths through a multi-leg tree that hit a target premium.
+
 
 ---
 

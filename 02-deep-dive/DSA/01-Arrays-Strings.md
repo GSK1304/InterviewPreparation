@@ -75,6 +75,9 @@ for (int price : prices) {
 }
 ```
 **Where it applies**: In kACE, when analyzing historical rate windows for option pricing.
+> 🏭 **Industry Example**: Robinhood and Zerodha use this exact pattern to display "max profit if bought on day X and sold on day Y" on stock charts. LeetCode Best Time to Buy/Sell Stock is directly based on this.
+> 🏦 **kACE Context**: Analyzing historical FX rate windows for option pricing entry/exit points.
+
 
 ---
 
@@ -91,6 +94,9 @@ for (int i = 0; i < logs.length; i++) {
 }
 ```
 **Where it applies**: Kafka consumer lag monitoring, rate limiter windows.
+> 🏭 **Industry Example**: Datadog uses sliding window counters to show requests/minute in their APM dashboards. Cloudflare uses fixed-window counters for DDoS detection per IP.
+> 🏦 **kACE Context**: Kafka consumer lag monitoring — finding peak message volume windows.
+
 
 ---
 
@@ -110,6 +116,9 @@ for (int i = 0; i < s.length(); i++) {
 ```
 
 ---
+> 🏭 **Industry Example**: Elasticsearch uses character frequency arrays for fuzzy search suggestions. Google Search uses anagram detection to suggest "did you mean?" corrections.
+> 🏦 **kACE Context**: Symbol matching in FX trading terminals — detecting permutations of currency codes.
+
 
 ### Use Case 4: Prefix Sum for Range Queries (Analytics Dashboard)
 **Problem**: Multiple range sum queries on a static array.
@@ -126,6 +135,9 @@ int rangeSum(int l, int r) { return prefix[r+1] - prefix[l]; }
 ```
 
 ---
+> 🏭 **Industry Example**: Google Analytics precomputes prefix sums of page views to serve date-range queries in O(1). Facebook's ad impression reporting uses the same technique for campaign dashboards.
+> 🏦 **kACE Context**: FX P&L range computations across strategy legs in the pricing grid.
+
 
 ### Use Case 5: Duplicate Detection (Data Validation)
 **Problem**: Find if any duplicate exists in an array.
@@ -140,6 +152,9 @@ return false;
 ```
 
 ---
+> 🏭 **Industry Example**: Stripe uses HashSet-based deduplication on idempotency keys to prevent double-charging. Kafka uses offset tracking (effectively a Set) to ensure at-least-once delivery without duplicate processing.
+> 🏦 **kACE Context**: Trade ID validation — preventing duplicate trade records in reconciliation.
+
 
 ## 🏋️ Practice Problems (Beginner → Medium)
 

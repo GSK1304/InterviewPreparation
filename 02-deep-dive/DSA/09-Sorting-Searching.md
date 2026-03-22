@@ -118,6 +118,9 @@ orders.sort((a, b) -> {
 });
 ```
 **Where it applies**: kACE pricing grid — sorting strategies, legs, expiry ladders.
+> 🏭 **Industry Example**: NASDAQ's matching engine uses multi-key sort (price → time priority) for order book maintenance. Binance sorts order books by price descending for bids, ascending for asks. Interactive Brokers TWS uses stable multi-key sort to maintain price-time priority.
+> 🏦 **kACE Context**: kACE pricing grid — sorting strategies by strike price, expiry, and premium for display.
+
 
 ---
 
@@ -138,6 +141,9 @@ List<Session> topK = new ArrayList<>(minHeap);
 topK.sort((a, b) -> b.messageCount - a.messageCount);
 ```
 **Where it applies**: kACE RFQ monitoring dashboard, Kafka consumer lag top-K reporting.
+> 🏭 **Industry Example**: Netflix uses min-heap Top-K to show trending content (top 10 most-watched shows right now). Twitter's trending topics algorithm uses a min-heap of size K over a rolling time window. YouTube's "Top videos" feature maintains a K-size heap over view counts.
+> 🏦 **kACE Context**: kACE RFQ monitoring dashboard — finding the K most active RFQ sessions by message count.
+
 
 ---
 
@@ -156,6 +162,9 @@ for (int[] interval : intervals) {
 }
 ```
 **Where it applies**: FX option expiry window merging, maintenance window consolidation.
+> 🏭 **Industry Example**: Google Calendar uses merge intervals to display free/busy time blocks. Airbnb's availability calendar merges booked date ranges. AWS CloudWatch merges metric data gaps into contiguous time series windows.
+> 🏦 **kACE Context**: FX option expiry window merging — consolidating overlapping validity periods for pricing.
+
 
 ---
 
@@ -173,6 +182,9 @@ for (int level = 0; level < 4; level++)
         sortedLogs[idx++] = getLogsOfLevel(level);
 ```
 **Where it applies**: Log aggregation in Jenkins CI, GitLab pipeline log sorting.
+> 🏭 **Industry Example**: Elasticsearch uses counting sort internally for low-cardinality field aggregations (like log level counts). Splunk's log analytics uses counting sort for severity distribution histograms. Kibana's log level pie charts are powered by counting sort.
+> 🏦 **kACE Context**: Log aggregation in Jenkins CI — sorting build log entries by severity for quick triage.
+
 
 ---
 
@@ -196,6 +208,9 @@ double findMedian() {
 }
 ```
 **Where it applies**: Real-time FX rate median computation, streaming trade price analytics.
+> 🏭 **Industry Example**: Netflix uses streaming median for video buffering time analysis. Uber uses it for real-time trip duration median computation. Cloudflare uses two-heap median for latency percentile tracking in their analytics pipeline.
+> 🏦 **kACE Context**: Real-time FX rate median computation for volatility monitoring.
+
 
 ---
 

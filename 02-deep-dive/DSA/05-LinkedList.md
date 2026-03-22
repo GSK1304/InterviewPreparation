@@ -130,6 +130,9 @@ class LRUCache {
 }
 ```
 **Where it applies**: kACE dropdown cache (`dropdownCache.ts`), Spring Boot `@Cacheable` eviction.
+> 🏭 **Industry Example**: Redis implements LRU eviction for cache memory management. CPU hardware caches (L1/L2/L3) use LRU policy. CDN edge servers (Cloudflare, Akamai) use LRU to evict cold content. Memcached's eviction is LRU-based.
+> 🏦 **kACE Context**: Spring Boot `@Cacheable` with LRU eviction for layout configs; dropdown cache eviction when memory pressure hits.
+
 
 ---
 
@@ -149,6 +152,9 @@ p1.next = dummy2.next; p2.next = null;
 return dummy1.next;
 ```
 **Where it applies**: Kafka message reordering, WebSocket priority message handling.
+> 🏭 **Industry Example**: RabbitMQ uses a priority queue (linked list internally) for message routing. Apache Kafka's consumer group rebalancing uses list partitioning to redistribute partitions. AWS SQS FIFO queues maintain strict insertion-order linked lists.
+> 🏦 **kACE Context**: Kafka message priority re-ordering — RFQ events jump ahead of analytics events in the processing queue.
+
 
 ---
 
@@ -167,6 +173,9 @@ boolean hasCycle(Module head) {
 }
 ```
 **Where it applies**: Gradle/Maven dependency cycle detection, Spring bean circular dependency.
+> 🏭 **Industry Example**: npm package manager uses cycle detection in the dependency graph to warn about circular dependencies. Spring Framework detects circular bean dependencies at startup. Gradle's build system flags circular task dependencies.
+> 🏦 **kACE Context**: Gradle/Maven dependency cycle detection in the kACE microservice build system.
+
 
 ---
 
@@ -186,6 +195,9 @@ while (!pq.isEmpty()) {
 return dummy.next;
 ```
 **Where it applies**: Merging sorted Kafka partition streams, multi-source log aggregation.
+> 🏭 **Industry Example**: Apache Kafka's log compaction merges multiple sorted segment files. Google's MapReduce merge-sorts output from K reducers. Elasticsearch merges multiple sorted index segments during index optimization.
+> 🏦 **kACE Context**: Merging sorted log streams from kACE microservices (gateway, pricing, RFQ, auth) for unified audit trail.
+
 
 ---
 
@@ -205,6 +217,9 @@ while (p2 != null) {
 return true;
 ```
 **Where it applies**: Data validation, symmetric trade ticket verification.
+> 🏭 **Industry Example**: DNA sequence analysis uses palindrome detection to find restriction enzyme cut sites. Version control systems use palindrome checks for symmetric merge conflict resolution markers.
+> 🏦 **kACE Context**: Symmetric trade ticket verification — checking if bid/ask structure is mirror-symmetric.
+
 
 ---
 

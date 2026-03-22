@@ -77,6 +77,9 @@ return bestBid == -1 ? -1 : bids[bestBid];
 ```
 **Where it applies**: FX option pricing — finding best available rate in sorted order book.
 
+> 🏭 **Industry Example**: NASDAQ matching engines use binary search on sorted order books for best bid/ask lookup. Interactive Brokers TWS uses binary search for price-level lookup in order books. Every stock exchange order matching engine uses binary search on sorted price arrays.
+> 🏦 **kACE Context**: FX option pricing — finding best available rate in a sorted FX order book.
+
 ---
 
 ### Use Case 2: Capacity Planning — Minimum Servers
@@ -103,6 +106,9 @@ return lo; // minimum max load per server
 ```
 **Where it applies**: Kafka partition sizing, microservice load distribution.
 
+> 🏭 **Industry Example**: AWS Auto Scaling uses binary search on answer space to find minimum instance count satisfying SLA. Kubernetes HPA uses binary search to find optimal replica count. HDFS uses binary search to find minimum block size satisfying replication requirements.
+> 🏦 **kACE Context**: Kafka partition sizing — binary search to find minimum partition count that keeps consumer lag below threshold.
+
 ---
 
 ### Use Case 3: Search in Rotated Array (Distributed Systems)
@@ -125,6 +131,9 @@ return -1;
 ```
 **Where it applies**: Searching logs in distributed systems where ring buffers rotate.
 
+> 🏭 **Industry Example**: Elasticsearch uses binary search on segment timestamps for time-range log queries. Splunk's time-based log search uses binary search on sorted event timestamps. Kafka's log segment binary search finds the offset for a given timestamp in O(log n).
+> 🏦 **kACE Context**: Searching Kafka log segments and kACE audit logs by timestamp using binary search on rotated time-ordered arrays.
+
 ---
 
 ### Use Case 4: Find Peak Load (Monitoring / Alerting)
@@ -140,6 +149,9 @@ while (lo < hi) {
 return lo; // peak index
 ```
 **Where it applies**: Finding peak traffic window in API monitoring dashboards.
+
+> 🏭 **Industry Example**: Datadog uses peak element binary search to identify traffic spikes in metric time series. Cloudflare's analytics pipeline uses peak detection for DDoS onset identification. Netflix's anomaly detection uses peak finding binary search for traffic spike detection.
+> 🏦 **kACE Context**: Finding peak traffic windows in kACE API monitoring dashboards for capacity planning.
 
 ---
 
@@ -170,6 +182,9 @@ int lastPos(int[] ids, int val) {
 }
 ```
 **Where it applies**: B-tree index range scans in PostgreSQL, DB2.
+
+> 🏭 **Industry Example**: Every RDBMS (MySQL, PostgreSQL, Oracle, SQL Server) uses binary search on B-Tree index pages for range queries. Redis uses skiplist binary search for ZRANGEBYSCORE operations. MongoDB uses binary search on WiredTiger B-Tree indexes for range predicates.
+> 🏦 **kACE Context**: B-Tree index range scans in kACE's PostgreSQL/DB2 databases — binary search enables O(log n) range query lookups.
 
 ---
 

@@ -293,6 +293,9 @@ int[] sa = buildSuffixArray(allSymbolsConcatenated);
 // Binary search for "USD" in O(log n) — much faster than linear scan
 ```
 **Where it applies**: Symbol search engines, trade log pattern analysis.
+> 🏭 **Industry Example**: Google's search index uses suffix arrays for substring matching in web pages. Elasticsearch uses suffix automaton for efficient wildcard queries. Bioinformatics tools (BLAST, BWA) use suffix arrays for DNA sequence matching at genome scale.
+> 🏦 **kACE Context**: FX symbol search — finding all currency pairs containing a substring like 'USD' across the full universe.
+
 
 ### Use Case 2: A* for Trade Route Optimisation
 ```java
@@ -301,6 +304,9 @@ int[] sa = buildSuffixArray(allSymbolsConcatenated);
 int optimalRoute = aStar(networkGrid, kaceHubCoords, targetVenueCoords);
 ```
 **Where it applies**: FX trade routing with latency-based heuristic.
+> 🏭 **Industry Example**: Google Maps uses A* with Euclidean distance heuristic for turn-by-turn navigation. Video game pathfinding (every major game engine: Unity, Unreal, Godot) uses A* for NPC navigation. Uber's routing engine uses A* with travel-time heuristics for driver routing.
+> 🏦 **kACE Context**: FX trade routing with latency-based heuristic — finding fastest path between trading venues using geographic proximity as heuristic.
+
 
 ### Use Case 3: Bloom Filter — Kafka Deduplication
 ```java
@@ -313,6 +319,9 @@ if (!processed.mightContain(messageId)) {
 // Saves DB lookup for 99%+ of duplicate checks
 ```
 **Where it applies**: Kafka consumer deduplication, API rate limiting at scale.
+> 🏭 **Industry Example**: Google Chrome's Safe Browsing uses a Bloom filter to check URLs against millions of malicious URLs in < 1ms. Apache Cassandra uses Bloom filters to avoid disk reads for non-existent keys. Facebook's photo storage (Haystack) uses Bloom filters to avoid unnecessary disk lookups.
+> 🏦 **kACE Context**: Kafka consumer deduplication — O(1) check whether a message ID was already processed, saving DB lookups.
+
 
 ### Use Case 4: Network Flow — Team Task Assignment
 ```java
@@ -322,6 +331,9 @@ if (!processed.mightContain(messageId)) {
 int maxAssignments = maxFlow(assignmentCapacity, source, sink, n);
 ```
 **Where it applies**: kACE team management — sprint task allocation.
+> 🏭 **Industry Example**: LinkedIn's job matching uses max-flow/bipartite matching to match candidates to job openings. Google's project staffing uses network flow for optimal engineer assignment. Airline crew scheduling uses min-cost max-flow for optimal crew-to-flight assignment.
+> 🏦 **kACE Context**: kACE team management — optimal sprint task-to-engineer assignment using bipartite matching.
+
 
 ### Use Case 5: Randomised Hashing — Config Deduplication
 ```java
@@ -331,6 +343,9 @@ long hash = randomHashConfig(layoutConfig);
 if (configHashes.contains(hash)) return cachedConfig(hash);
 ```
 **Where it applies**: kACE layout config deduplication, screen config caching.
+> 🏭 **Industry Example**: Git's SHA-1/SHA-256 hashing (content-addressed storage) uses randomized hash properties to ensure collision resistance. Bitcoin's Merkle trees use SHA-256 hashing for transaction integrity. Cassandra uses consistent hashing with random token assignment for partition distribution.
+> 🏦 **kACE Context**: kACE layout config deduplication — random-base polynomial hashing to detect identical configs from different sources.
+
 
 ---
 

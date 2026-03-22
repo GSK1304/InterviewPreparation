@@ -150,6 +150,9 @@ userPermissions &= ~WRITE;   // remove write
 userPermissions ^= READ;     // toggle read
 ```
 **Where it applies**: kACE JWT privileges bitmask, user role permission system, feature flag toggles.
+> 🏭 **Industry Example**: Linux file permissions (rwxr-xr-x) use bitmasks — `chmod 755` = `111 101 101` in binary. Discord stores user permissions per server as a 64-bit bitmask. AWS IAM policy conditions use bitmask-style flags internally. LaunchDarkly's feature flag system uses bitmask evaluation for multi-variate flags.
+> 🏦 **kACE Context**: kACE JWT privileges bitmask — READ/WRITE/EXECUTE/ADMIN permissions stored as bit flags per user role.
+
 
 ---
 
@@ -168,6 +171,9 @@ for (int mask = 1; mask < (1 << n); mask++) { // skip empty set (mask=0)
 }
 ```
 **Where it applies**: kACE multi-leg FX option strategy generation (straddle, strangle, butterfly).
+> 🏭 **Industry Example**: Bloomberg's portfolio optimizer enumerates all 2^n asset subsets using bitmask iteration. Python's `itertools.combinations` internally uses bitmask enumeration. Google's Knapsack-based ad auction system uses bitmask DP for optimal ad slot assignment.
+> 🏦 **kACE Context**: kACE multi-leg FX option strategy generation — enumerating all valid subsets of available legs.
+
 
 ---
 
@@ -190,6 +196,9 @@ int required = AUTH_SERVICE | PRICING_SERVICE | RFQ_SERVICE;
 boolean allReady = (initialized & required) == required;
 ```
 **Where it applies**: kACE StaticCacheOrchestrator startup tracking, Spring Boot service health bitmask.
+> 🏭 **Industry Example**: Redis uses bitmaps (SET/GETBIT operations) for compact boolean state storage — e.g., tracking which user IDs have seen a notification (1 bit per user = 500MB for 4B users). Bloom filters (used by Chrome safe browsing, Cassandra) use bitmask state compression.
+> 🏦 **kACE Context**: kACE StaticCacheOrchestrator startup tracking — bitmask of which microservices have completed cache pre-loading.
+
 
 ---
 
@@ -211,6 +220,9 @@ boolean isValid = computeChecksum(received) == expectedChecksum;
 int corruptedByte = computeChecksum(received) ^ expectedChecksum;
 ```
 **Where it applies**: Kafka message integrity, WebSocket frame checksum, JWT payload validation.
+> 🏭 **Industry Example**: Ethernet frames use XOR-based CRC checksums for error detection. RAID-5 disk arrays use XOR parity bits for fault tolerance — losing one disk, XOR reconstruction recovers data. TCP/IP packet headers include XOR-based checksums.
+> 🏦 **kACE Context**: Kafka message integrity validation — XOR checksum verification for trade event payloads.
+
 
 ---
 
@@ -239,6 +251,9 @@ for (int mask = 0; mask < (1 << n); mask++) {
 return dp[(1 << n) - 1]; // all tasks assigned
 ```
 **Where it applies**: Optimal sprint task assignment in kACE team management, resource allocation.
+> 🏭 **Industry Example**: Google's interview scheduling system uses bitmask DP for optimal interviewer-to-candidate assignment. Airline crew scheduling uses bitmask DP for optimal flight-to-crew assignment. Uber's driver-trip assignment uses bitmask DP for small batch optimizations.
+> 🏦 **kACE Context**: Optimal sprint task assignment in kACE team management — minimizing total effort across 12 team members.
+
 
 ---
 

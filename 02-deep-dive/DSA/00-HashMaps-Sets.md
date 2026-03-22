@@ -166,6 +166,9 @@ Map<String, List<DropdownOption>> dropdownCache = new HashMap<>();
 List<DropdownOption> options = dropdownCache.get("CURRENCY_PAIR");
 ```
 **Where it applies**: kACE `dropdownCache.ts` — module-level Map for O(1) field option lookups.
+> 🏭 **Industry Example**: Netflix uses in-memory HashMaps to cache genre→movie-list mappings per user session, avoiding repeated DB queries during browsing. Spotify caches artist→top-tracks for O(1) playback suggestions.
+> 🏦 **kACE Context**: `dropdownCache.ts` — pre-loads ~200 FX option field dropdowns at startup for O(1) UI lookup.
+
 
 ### Use Case 2: WebSocket Session Registry
 ```java
@@ -176,6 +179,9 @@ topicSessions.computeIfAbsent("RFQ_UPDATES", k -> new HashSet<>()).add(sessionId
 topicSessions.getOrDefault("RFQ_UPDATES", Set.of()).forEach(this::send);
 ```
 **Where it applies**: kACE `SubscriptionRegistry` — WebSocket topic-to-session mapping.
+> 🏭 **Industry Example**: Slack uses a ConcurrentHashMap<channelId, Set<userId>> to track which users are viewing each channel in real-time. Discord routes message fan-out using a topic→session registry per gateway server.
+> 🏦 **kACE Context**: `SubscriptionRegistry` — maps WebSocket topics to active trader sessions for targeted price updates.
+
 
 ### Use Case 3: Anagram / Duplicate Detection
 ```java
@@ -186,6 +192,9 @@ List<String> duplicates = tradeIds.stream()
     .collect(Collectors.toList());
 ```
 **Where it applies**: Trade reconciliation, Kafka message deduplication.
+> 🏭 **Industry Example**: Google Docs uses duplicate detection to prevent saving identical versions. Amazon deduplicates product listings by normalizing and hashing titles.
+> 🏦 **kACE Context**: Trade reconciliation — detecting duplicate trade IDs in a Kafka message batch before processing.
+
 
 ### Use Case 4: Frequency Analysis
 ```java
@@ -196,6 +205,9 @@ String mostRequested = Collections.max(pairFreq.entrySet(),
     Map.Entry.comparingByValue()).getKey();
 ```
 **Where it applies**: kACE RFQ analytics, market maker activity monitoring.
+> 🏭 **Industry Example**: Twitter uses frequency maps to compute trending hashtags in real-time. YouTube counts view frequencies per video per hour for its trending algorithm.
+> 🏦 **kACE Context**: RFQ analytics — counting most-requested FX currency pairs per market maker session.
+
 
 ### Use Case 5: Subarray Sum — P&L Window Analysis
 ```java
@@ -203,6 +215,9 @@ String mostRequested = Collections.max(pairFreq.entrySet(),
 int count = subarraySum(dailyPnL, targetPnL); // prefix sum + HashMap
 ```
 **Where it applies**: FX option strategy P&L window analysis.
+> 🏭 **Industry Example**: Amazon uses prefix sum + HashMap to compute revenue in arbitrary date ranges for seller dashboards in O(1) per query. Uber Eats uses it for sliding-window order volume metrics.
+> 🏦 **kACE Context**: FX option strategy P&L window analysis — count time windows where cumulative P&L equals a target.
+
 
 ---
 

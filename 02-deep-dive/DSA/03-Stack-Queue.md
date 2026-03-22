@@ -97,6 +97,9 @@ void redo() {
 }
 ```
 **Where it applies**: Pricing form field clearing/restoring in kACE Phoenix.
+> 🏭 **Industry Example**: Microsoft Word, Google Docs, and VS Code all use dual-stack undo/redo. Photoshop maintains a history stack of up to 1000 states per session. Git's staging area is conceptually a stack of changesets.
+> 🏦 **kACE Context**: Pricing form field clearing/restoring — undoing a manual entry restores calculated field values.
+
 
 ---
 
@@ -114,6 +117,9 @@ pq.offer(new Message("HEARTBEAT", 1, timestamp));
 Message next = pq.poll(); // processes RFQ_UPDATE first
 ```
 **Where it applies**: kACE WebSocket/STOMP message handling, Kafka consumer ordering.
+> 🏭 **Industry Example**: Discord uses priority queues to ensure system notifications (server bans, security alerts) are delivered before regular chat messages. Slack's message delivery uses a priority queue that elevates @mentions and DMs.
+> 🏦 **kACE Context**: kACE WebSocket/STOMP message handling — RFQ updates are prioritized over heartbeat frames.
+
 
 ---
 
@@ -141,6 +147,9 @@ while (!ops.isEmpty()) nums.push(applyOp(ops.pop(), nums.pop(), nums.pop()));
 return nums.pop();
 ```
 **Where it applies**: Pricing formula engines, options payoff calculators.
+> 🏭 **Industry Example**: Excel and Google Sheets use shunting-yard algorithm (stack-based) to evaluate cell formulas. JavaScript engines use call stacks to evaluate nested function expressions. Grafana formula fields use the same approach.
+> 🏦 **kACE Context**: Pricing formula evaluation — option payoff calculators with nested conditional expressions.
+
 
 ---
 
@@ -164,6 +173,9 @@ while (!queue.isEmpty()) {
 }
 ```
 **Where it applies**: Team hierarchy display, org charts, dependency resolution.
+> 🏭 **Industry Example**: LinkedIn's "2nd degree connections" feature uses BFS level order on the social graph. Facebook's friend suggestion ("People You May Know") uses BFS at depth 2. Google's web crawler uses BFS to discover pages level by level.
+> 🏦 **kACE Context**: Team hierarchy display in the kACE management portal — showing org chart level by level.
+
 
 ---
 
@@ -182,6 +194,9 @@ for (int i = 0; i < prices.length; i++) {
 }
 ```
 **Where it applies**: FX rate trend analysis, option pricing momentum signals.
+> 🏭 **Industry Example**: Bloomberg Terminal computes stock span for momentum indicators. TradingView's RSI indicator uses a variant of this pattern. Zerodha's Kite charts display consecutive up/down day streaks using a monotonic stack.
+> 🏦 **kACE Context**: FX rate trend analysis — detecting consecutive days where spot rate stayed above a threshold.
+
 
 ---
 

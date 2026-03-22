@@ -77,6 +77,9 @@ for (int time : timestamps) {
 return true;
 ```
 **Where it applies**: kACE API Gateway rate limiting, Kafka consumer throttling.
+> 🏭 **Industry Example**: Cloudflare uses sliding window counters in Redis to rate-limit API requests per IP. GitHub's API enforces 5000 requests/hour per user using the same sliding window approach.
+> 🏦 **kACE Context**: API Gateway rate limiting for RFQ requests and WebSocket message throttling.
+
 
 ---
 
@@ -98,6 +101,9 @@ for (int right = 0; right < prices.length; right++) {
 }
 ```
 **Where it applies**: Monitoring FX option pricing validity windows.
+> 🏭 **Industry Example**: Bloomberg Terminal uses variable windows to detect valid spread ranges in bond markets. Binance uses sliding windows to flag abnormal price volatility for circuit breakers.
+> 🏦 **kACE Context**: Monitoring FX option pricing validity windows — detecting when spot rates drift outside acceptable spread bounds.
+
 
 ---
 
@@ -123,6 +129,9 @@ for (int right = 0; right < s.length(); right++) {
 }
 ```
 **Where it applies**: Compliance keyword scanning in trade messages/logs.
+> 🏭 **Industry Example**: Elasticsearch's highlight feature uses minimum window substring internally to find the shortest passage containing all query terms. Ctrl+F in browsers uses a similar approach for multi-term search highlighting.
+> 🏦 **kACE Context**: Compliance keyword scanning in trade audit logs.
+
 
 ---
 
@@ -139,6 +148,9 @@ while (left < right) {
 }
 ```
 **Where it applies**: Infrastructure capacity planning, buffer size optimization.
+> 🏭 **Industry Example**: AWS capacity planning tools use this pattern to maximize resource utilization between two capacity constraints. Cloud cost optimization tools use it to find the most efficient resource allocation window.
+> 🏦 **kACE Context**: Infrastructure capacity planning and Kafka partition buffer size optimization.
+
 
 ---
 
@@ -162,6 +174,9 @@ for (int i = 0; i < nums.length - 2; i++) {
 }
 ```
 **Where it applies**: Delta-neutral option strategies, multi-leg trade analysis.
+> 🏭 **Industry Example**: Portfolio management systems use 3-sum variants to find three asset combinations that sum to a target return. Google's interviewing process famously includes this problem to test algorithmic thinking.
+> 🏦 **kACE Context**: Delta-neutral option strategy detection — finding three legs whose deltas sum to zero.
+
 
 ---
 

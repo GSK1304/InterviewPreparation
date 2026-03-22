@@ -230,6 +230,9 @@ priorityMap.put(3, screenConfig);
 LayoutConfig active = priorityMap.firstEntry().getValue();
 ```
 **Where it applies**: kACE SQL priority-based layout fallback — `applyClassSpecificLayout`.
+> 🏭 **Industry Example**: Java's `TreeMap` (Red-Black Tree) is used in JDK's `ConcurrentSkipListMap` for thread-safe sorted maps. Lucene (Elasticsearch's core) uses sorted trees for term dictionary lookups. MongoDB's WiredTiger storage engine uses B-Trees for its default index structure.
+> 🏦 **kACE Context**: kACE screen layout priority — `TreeMap` stores layout configs sorted by priority for O(log n) fallback resolution.
+
 
 ### Use Case 2: Database Indexing (B+ Tree)
 ```java
@@ -240,6 +243,9 @@ LayoutConfig active = priorityMap.firstEntry().getValue();
 // → B+ Tree: find t1 in O(log n), scan leaves for k results in O(k)
 ```
 **Where it applies**: kACE PostgreSQL/DB2 index design for trade query performance.
+> 🏭 **Industry Example**: MySQL InnoDB uses B+ Trees for ALL indexes (primary key = clustered B+ Tree). PostgreSQL's default index type is B-Tree (B+ Tree variant). Oracle Database uses B*-Tree indexes. SQLite uses B-Tree for its storage engine. All major RDBMS use B+ Trees because of their superior range scan performance.
+> 🏦 **kACE Context**: kACE PostgreSQL/DB2 index design — B+ Tree indexes on (screen_id, priority) for O(log n) layout config lookup.
+
 
 ### Use Case 3: Redis Sorted Set (Skip List)
 ```java
@@ -250,6 +256,9 @@ LayoutConfig active = priorityMap.firstEntry().getValue();
 // zrangebyscore leaderboard 100 200    → O(log n + k)
 ```
 **Where it applies**: Real-time leaderboards, rate limiting with sliding window scores.
+> 🏭 **Industry Example**: Redis `ZADD`/`ZRANGE`/`ZRANGEBYSCORE` are all backed by skip lists internally. Discord uses Redis sorted sets for real-time leaderboards. Stack Overflow uses Redis sorted sets for "hot questions" ranking. Twitter uses Redis sorted sets for user timeline ordering.
+> 🏦 **kACE Context**: Real-time leaderboards, rate limiting with sliding window scores — patterns applicable to kACE's monitoring dashboards.
+
 
 ### Use Case 4: AVL Tree for In-Memory Dictionary
 ```java
@@ -260,6 +269,9 @@ TreeMap<String, FXPair> symbolMap = new TreeMap<>();
 symbolMap.put("EURUSD", new FXPair("EUR", "USD"));
 FXPair pair = symbolMap.get("EURUSD"); // O(log n)
 ```
+> 🏭 **Industry Example**: Java's original `TreeSet`/`TreeMap` used AVL trees before switching to Red-Black. C++ `std::map` and `std::set` use Red-Black Trees. AVL trees are used in in-memory databases (like VoltDB) where read performance is critical.
+> 🏦 **kACE Context**: Read-heavy FX symbol dictionary — AVL tree gives slightly better read performance than RB tree for the static currency pair lookup.
+
 
 ### Use Case 5: File System (B-Tree)
 ```java
@@ -270,6 +282,9 @@ FXPair pair = symbolMap.get("EURUSD"); // O(log n)
 ```
 
 ---
+> 🏭 **Industry Example**: Linux ext4 filesystem uses HTree (B-Tree variant) for large directory entries. NTFS (Windows) uses B-Tree for the Master File Table (MFT). Apple's HFS+/APFS use B-Tree for file catalog. ZFS uses a B-Tree variant (ZAP) for directory entries.
+> 🏦 **kACE Context**: CI/CD pipelines reading/writing build artifacts — all go through OS-level B-Tree file system indexes.
+
 
 ## 🏋️ Practice Problems
 

@@ -264,6 +264,9 @@ int quickSelect(int[] nums, int lo, int hi, int k) {
 int minOps = matrixChain(matrixDimensions);
 ```
 **Where it applies**: FX option Greeks matrix computation order optimization.
+> 🏭 **Industry Example**: NumPy's `np.einsum` uses matrix chain optimization to find the most efficient contraction order for tensor operations. TensorFlow and PyTorch optimize neural network computation graphs using similar DP-based operation ordering. BLAS libraries use this for efficient matrix multiply chains.
+> 🏦 **kACE Context**: FX option Greeks matrix computation — optimal order for multiplying sensitivity matrices (delta, gamma, vega).
+
 
 ---
 
@@ -275,6 +278,9 @@ int[] result = robTree(orgChartRoot);
 int maxWorkload = Math.max(result[0], result[1]);
 ```
 **Where it applies**: Team resource allocation, sprint planning with manager/IC constraints.
+> 🏭 **Industry Example**: Google's Borg cluster manager uses tree DP for hierarchical resource quota allocation. AWS Organizations uses tree DP for hierarchical cost allocation across accounts. Kubernetes uses tree-based DP for hierarchical pod resource limits (Namespace → Deployment → Pod).
+> 🏦 **kACE Context**: kACE team resource allocation — maximizing deliverable work across manager/IC constraints.
+
 
 ---
 
@@ -284,6 +290,9 @@ int maxWorkload = Math.max(result[0], result[1]);
 int optimalRoute = tsp(latencyMatrix, venues.length);
 ```
 **Where it applies**: FX multi-venue trade execution routing optimization.
+> 🏭 **Industry Example**: UPS and FedEx use TSP variants (bitmask DP) for delivery route optimization. Google's OR-Tools solves TSP for last-mile delivery optimization. Salesforce uses TSP for optimal sales representative visit scheduling.
+> 🏦 **kACE Context**: FX multi-venue trade execution routing — visiting all required trading venues with minimum total latency.
+
 
 ---
 
@@ -293,6 +302,9 @@ int optimalRoute = tsp(latencyMatrix, venues.length);
 int ways = numDistinct(logMessage, errorPattern);
 ```
 **Where it applies**: Kafka message pattern analysis, trade ticket validation.
+> 🏭 **Industry Example**: Git's diff algorithm uses LCS (related to distinct subsequences) to find minimal edit distance between file versions. Bioinformatics tools use distinct subsequence DP for DNA sequence alignment (Smith-Waterman). Plagiarism detectors count common subsequences between documents.
+> 🏦 **kACE Context**: Kafka message pattern analysis — counting how many ways an error pattern appears in a log message stream.
+
 
 ---
 
@@ -302,6 +314,9 @@ int ways = numDistinct(logMessage, errorPattern);
 int kthPnL = quickSelect(dailyPnL, 0, dailyPnL.length-1, k);
 ```
 **Where it applies**: Real-time P&L percentile computation, VaR (Value at Risk) calculation.
+> 🏭 **Industry Example**: Numpy's `np.percentile` uses QuickSelect internally. Financial risk systems compute VaR (Value at Risk) using QuickSelect for the 95th/99th percentile of daily returns. Cloudflare uses QuickSelect for p99 latency computation in real-time analytics.
+> 🏦 **kACE Context**: Real-time P&L percentile computation — finding median or 95th percentile trade P&L without full sort.
+
 
 ---
 

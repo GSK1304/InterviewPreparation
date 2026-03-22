@@ -228,6 +228,9 @@ int normalize(int num, int den) {
 // 1.5050 USD per EUR → store as {10100, 6700} → GCD → {1010, 670} → {101, 67}
 ```
 **Where it applies**: FX rate display normalization, option strike price simplification in kACE.
+> 🏭 **Industry Example**: Python's `fractions.Fraction` class uses GCD for automatic simplification. React's responsive grid system uses GCD to compute column ratios. Music theory applications use GCD for rhythm quantization (e.g., 6/8 time simplified from 12/16).
+> 🏦 **kACE Context**: FX rate display normalization — simplifying EUR/USD rate ratios for compact display on the trading screen.
+
 
 ---
 
@@ -244,6 +247,9 @@ for (int i = 2; i < 1000 && primes.size() < K; i++)
 int bucketId = (tradeId * primes.get(0)) % numBuckets;
 ```
 **Where it applies**: Kafka partition key hashing, trade ID bucketing for parallel processing.
+> 🏭 **Industry Example**: RSA encryption (used in HTTPS/TLS everywhere) requires large prime generation — Sieve of Eratosthenes is the standard approach. Cryptographic libraries (OpenSSL, BouncyCastle) use optimized prime sieves. Diffie-Hellman key exchange requires prime number generation at scale.
+> 🏦 **kACE Context**: Prime-based hash seeds for trade ID bucketing to minimize collision in parallel processing.
+
 
 ---
 
@@ -257,6 +263,9 @@ long compoundFactor = fastPow(1001L, days, MOD);
 // Used in: Black-Scholes discount factor, binomial tree pricing
 ```
 **Where it applies**: kACE FX option pricing — discount factors, forward rate computation.
+> 🏭 **Industry Example**: Bitcoin mining uses fast modular exponentiation in SHA-256 proof-of-work. RSA encryption/decryption is entirely based on `base^exp % mod` computed via fast power. TLS handshake Diffie-Hellman uses fast power hundreds of times per second.
+> 🏦 **kACE Context**: kACE FX option pricing — computing compound growth factors `(1+r)^n` for discount factors.
+
 
 ---
 
@@ -270,6 +279,9 @@ System.out.println("Jobs sync every " + syncInterval + " seconds");
 // e.g., job every 6s and every 4s → sync every 12s
 ```
 **Where it applies**: kACE StaticCacheOrchestrator refresh intervals, Kafka consumer sync scheduling.
+> 🏭 **Industry Example**: Operating system schedulers use LCM to find when periodic tasks next align (Rate Monotonic Scheduling). Cron job systems find common execution windows using LCM. Video game engines synchronize physics updates and rendering cycles using LCM of their frequencies.
+> 🏦 **kACE Context**: kACE StaticCacheOrchestrator — synchronizing refresh intervals between market data, dropdown, and layout config caches.
+
 
 ---
 
@@ -285,6 +297,9 @@ System.out.println("Possible strategies: " + strategies);
 long assignments = nCr(8, 3); // C(8,3) = 56
 ```
 **Where it applies**: kACE strategy combination analysis, team workload distribution planning.
+> 🏭 **Industry Example**: A/B testing platforms (Optimizely, VWO) use combinatorics to calculate the number of variant combinations. Poker hand probability calculators use nCr extensively. Machine learning cross-validation uses nCr to count train/test split combinations.
+> 🏦 **kACE Context**: kACE strategy combination analysis — counting how many 2-leg spreads are possible from 8 available currency pairs.
+
 
 ---
 
