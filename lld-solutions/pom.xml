@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>lld.solutions</groupId>
+    <artifactId>lld-solutions-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>LLD Solutions Java 21</name>
+    <description>Runnable Java 21 solutions for 11 LLD machine coding problems</description>
+
+    <modules>
+        <module>01-parking-lot</module>
+        <module>02-chess-game</module>
+        <module>03-atm-machine</module>
+        <module>04-elevator-system</module>
+        <module>05-library-management</module>
+        <module>06-spaceship-game</module>
+        <module>07-splitwise</module>
+        <module>08-bookmyshow</module>
+        <module>09-cab-booking</module>
+        <module>10-snake-ladder</module>
+        <module>11-hotel-reservation</module>
+    </modules>
+
+    <properties>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.compiler.release>21</maven.compiler.release>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <exec.maven.plugin.version>3.1.0</exec.maven.plugin.version>
+    </properties>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.11.0</version>
+                    <configuration>
+                        <release>21</release>
+                        <!-- Enable preview features if needed -->
+                        <!-- <compilerArgs><arg>- -enable-preview</arg></compilerArgs> -->
+                    </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.codehaus.mojo</groupId>
+                    <artifactId>exec-maven-plugin</artifactId>
+                    <version>${exec.maven.plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+</project>
