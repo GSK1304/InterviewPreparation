@@ -31,23 +31,44 @@ Services use `server.port=0` — dynamic random ports. Eureka tracks their actua
 
 ---
 
-## Quick Start
+## Running the Project
 
-### Prerequisites
+### Option A — IDE (Recommended)
+
+| IDE | Guide |
+|-----|-------|
+| Spring Tool Suite (STS) | [docs/STS-SETUP.md](docs/STS-SETUP.md) |
+| IntelliJ IDEA | docs/INTELLIJ-SETUP.md _(coming soon)_ |
+
+Both guides cover: importing the Maven multi-module project, start order (Eureka → Gateway → services), Boot Dashboard / Services view, log navigation, H2 console access, and common issues.
+
+### Option B — Command Line
+
+#### Prerequisites
 - JDK 21+
 - Maven 3.8+
 
-### Start Everything
+#### Start Everything
 ```bash
 cd lld-springboot
 chmod +x start-all.sh
 ./start-all.sh
 ```
 
-### Stop Everything
+#### Stop Everything
 ```bash
 ./stop-all.sh
 # or Ctrl+C in the start-all.sh terminal
+```
+
+### Start Order (all methods)
+
+Regardless of how you run it, the order matters:
+
+```
+1. eureka-server   →  wait for http://localhost:8761 to respond
+2. api-gateway     →  wait for http://localhost:8080 to respond
+3. All 11 services →  order doesn't matter, start in parallel
 ```
 
 ---
